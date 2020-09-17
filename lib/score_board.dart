@@ -146,6 +146,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
                           Text("score", style: tableTitleStyle, textAlign: TextAlign.center,),
                         ]
                     ),
+                    // 
                     for(int i=0;i<data.length;i++)
                       oneRow(data[i], i),
                     for(int i=data.length;i<15;i++)
