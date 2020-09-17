@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Positioned(
                 bottom: _height * 0.1,
-                child: Buttons()
+                child: _buttons()
               )
             ],
           ),
@@ -128,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget Buttons(){
+  Widget _buttons(){
     return Container(
       child: Column(
         children: [
@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: (){
               _nicknameController.clear();
             },
-            child: Button("입장하기"),
+            child: _button("입장하기"),
           ),
           SizedBox(height: 10),
           GestureDetector(
@@ -148,14 +148,14 @@ class _MyHomePageState extends State<MyHomePage> {
               )
               );
             },
-            child: Button("랭킹보기"),
+            child: _button("랭킹보기"),
           )
         ],
       )
     );
   }
   
-  Widget Button(String title){
+  Widget _button(String title){
     Size _size = MediaQuery.of(context).size;
     double _width = _size.width;
     double _height = _size.height;

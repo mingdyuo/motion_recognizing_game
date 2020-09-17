@@ -61,34 +61,41 @@ class _ScoreBoardState extends State<ScoreBoard> {
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
+            // gradient box below the score board
             Container(
               alignment: Alignment.topCenter,
               width: _width,
               height: _height * 0.3,
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [Color.fromARGB(255, 217, 56, 41), Color.fromARGB(255, 242, 200, 162)]
-                  )
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft, // start point of the gradation
+                  end: Alignment.centerRight, // end point of the gradation
+                  colors: [
+                    Color.fromARGB(255, 217, 56, 41),  // start color of the gradation
+                    Color.fromARGB(255, 242, 200, 162) // end color of the gradation
+                  ]
+                )
               ),
             ),
             Positioned(
-                top: _width * 0.2,
-                child: Board()
+                top: _height * 0.15,
+                child: _board()
+            ),
+            Positioned(
+              bottom: _height * 0.1,
+              child: _buttons()
             )
+
           ],
         )
       )
     );
   }
 
-  Widget Board(){
+  Widget _board(){
     Size _size = MediaQuery.of(context).size;
     double _width = _size.width;
     double _height = _size.height;
-
-
 
     return Container(
       height: _height * 0.7,
@@ -146,22 +153,23 @@ class _ScoreBoardState extends State<ScoreBoard> {
                           Text("score", style: tableTitleStyle, textAlign: TextAlign.center,),
                         ]
                     ),
-                    // 
+                    // create rows according to the "ScoreData"
                     for(int i=0;i<data.length;i++)
-                      oneRow(data[i], i),
+                      dataRow(data[i], i),
+                    // if rows are few, make some more rows to fill rest of the board
                     for(int i=data.length;i<15;i++)
                       emptyRow(i)
                   ]
               )
+            ),
           ),
-          )
-
+          SizedBox(height: 25,)
         ],
       )
     );
   }
 
-  TableRow oneRow(ScoreData data, int index){
+  TableRow dataRow(ScoreData data, int index){
     return TableRow(
       decoration: BoxDecoration(
         color: (index % 2 == 1)
@@ -203,11 +211,57 @@ class _ScoreBoardState extends State<ScoreBoard> {
           padding: EdgeInsets.all(2.5),
           child: Text(" ", style: tableDetailStyle),
         ),
-
       ]
     );
   }
 
+  Widget _buttons(){
+    return Container(
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: (){
+              
+            },
+            child: _button("게임하기")
+          ),
+          SizedBox(width: 10,),
+          GestureDetector(
+              onTap: (){
 
+              },
+              child: _button("끝내기")
+          )
+
+        ],
+      )
+    );
+  }
+
+  Widget _button(String title){
+    Size _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
+    return Container(
+        width: _width * 0.35,
+        height: _height * 0.08,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(40),
+          color: Color.fromARGB(255, 255, 139, 139),
+        ),
+        child: Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: "AppleSDGothicNeo",
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              fontSize: 18
+            )
+          )
+        )
+    );
+  }
 
 }
