@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/score_board.dart';
 
 void main() {
@@ -27,7 +28,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  /* Text controller is used in TextField that makes you can enter nickname in the field */
   final TextEditingController _nicknameController = TextEditingController();
+  /* Scaffold key is used for recognizing exact page in which we will show snackbar message. */
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,28 +41,36 @@ class _MyHomePageState extends State<MyHomePage> {
     return GestureDetector(
       onTap : ()=>FocusScope.of(context).unfocus(),
       child: Scaffold(
-        body: Center(
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              Container(
-                  alignment: Alignment.topCenter,
-                  width: _width,
-                  child: Image.asset(
-                      "assets/images/wave2.png",
-                      fit: BoxFit.fitWidth
-                  )
+        resizeToAvoidBottomInset : false,
+        key: _scaffoldKey,
+        body: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            Container(
+                alignment: Alignment.topCenter,
+                width: _width,
+                child: Image.asset(
+                    "assets/images/wave2.png",
+                    fit: BoxFit.fitWidth
+                )
+            ),
+            Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: _height * 0.35),
+                      child: NicknameBox(),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(bottom: _height * 0.1),
+                        child: _buttons()
+                    )
+                  ],
+                ),
               ),
-              Positioned(
-                top: _height * 0.35,
-                child: NicknameBox()
-              ),
-              Positioned(
-                bottom: _height * 0.1,
-                child: _buttons()
-              )
-            ],
-          ),
+          ],
         ),
       )
     );
@@ -134,7 +146,20 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           GestureDetector(
             onTap: (){
-              _nicknameController.clear();
+              /* Check if user entered nickname in the text field */
+              if(_nicknameController.text.isEmpty){
+                _scaffoldKey.currentState.showSnackBar(
+                    SnackBar(content: Text("Enter your nickname for this game."))
+                );
+              }
+              else{
+                  _nicknameController.clear();
+                  Navigator.push(
+                      context, MaterialPageRoute(
+                      builder: (context) => GamePage()
+                  )
+                  );
+              }
             },
             child: _button("입장하기"),
           ),
@@ -165,12 +190,6 @@ class _MyHomePageState extends State<MyHomePage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
         color: Color.fromARGB(255, 248, 236, 201),
-
-//        gradient: LinearGradient(
-//          begin: Alignment.centerLeft,
-//          end: Alignment.centerRight,
-//          colors: [Color.fromARGB(255, 248, 236, 201), Colors.white]
-//        )
       ),
       child: Center(
         child: Text(
@@ -179,7 +198,6 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(
               fontFamily: "AppleSDGothicNeo",
               fontWeight: FontWeight.w400,
-//              color: Colors.white,
               fontSize: 18
             )
         )

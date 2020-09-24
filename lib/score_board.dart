@@ -82,10 +82,9 @@ class _ScoreBoardState extends State<ScoreBoard> {
                 child: _board()
             ),
             Positioned(
-              bottom: _height * 0.1,
+              bottom: _height * 0.03,
               child: _buttons()
             )
-
           ],
         )
       )
@@ -216,8 +215,14 @@ class _ScoreBoardState extends State<ScoreBoard> {
   }
 
   Widget _buttons(){
+    Size _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
+
     return Container(
+      width: _width * 0.85,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
             onTap: (){
@@ -225,7 +230,6 @@ class _ScoreBoardState extends State<ScoreBoard> {
             },
             child: _button("게임하기")
           ),
-          SizedBox(width: 10,),
           GestureDetector(
               onTap: (){
 
@@ -243,7 +247,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
     double _width = _size.width;
     double _height = _size.height;
     return Container(
-        width: _width * 0.35,
+        width: _width * 0.4,
         height: _height * 0.08,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
