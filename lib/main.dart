@@ -107,13 +107,19 @@ class _MyHomePageState extends State<MyHomePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "닉네임을 입력하세요.",
-            style: TextStyle(
-              fontFamily: "AppleSDGothicNeo",
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-              fontSize: 18
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: Text(
+                  "닉네임을 입력하세요.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontFamily: "AppleSDGothicNeo",
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      fontSize: 18
+                  )
+              ),
             )
           ),
           Container(
@@ -189,7 +195,14 @@ class _MyHomePageState extends State<MyHomePage> {
       height: _height * 0.08,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
-        color: Color.fromARGB(255, 248, 236, 201),
+        color: Color.fromARGB(255, 250, 250, 250),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 6.0,
+            color: Colors.black.withOpacity(.2),
+            offset: Offset(5.0, 6.0),
+          ),
+        ]
       ),
       child: Center(
         child: Text(
@@ -198,7 +211,8 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(
               fontFamily: "AppleSDGothicNeo",
               fontWeight: FontWeight.w400,
-              fontSize: 18
+              fontSize: 18,
+              color: Colors.deepPurple
             )
         )
       )

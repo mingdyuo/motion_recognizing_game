@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:motion_recognizing_game/score_board.dart';
 
 enum GameState{
   waiting,
@@ -19,7 +22,8 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   GameState currState = GameState.waiting;
   String keyword = "no";
-  int point = 0;
+  int score = 0;
+  int newPoint;
   int currSet = 1;
   int counting;
   Timer _timer;
@@ -47,13 +51,20 @@ class _GamePageState extends State<GamePage> {
     return keywordFromServer;
   }
 
+  void completionCount(){
+    _timer = Timer(Duration(seconds: 4),
+        (){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ScoreBoard()));
+        }
+    );
+  }
+
   void countDown(){
     const oneSec = const Duration(seconds: 1);
     counting = 7;
     _timer = new Timer.periodic(oneSec,
             (timer) => setState(
                 (){
-                  print(counting);
                   if(counting == 4){
                     counting --;
                     currState = GameState.counting;
@@ -70,38 +81,31 @@ class _GamePageState extends State<GamePage> {
                   }
                 }
             ));
-  }
+    }
 
   void resultTimer(){
     _timer = new Timer(Duration(seconds: 4),
         (){
           setState(() {
-            if(currSet > 7) currState = GameState.completed;
-            else currState = GameState.waiting;
-             _timer.cancel();
-             _timer = null;
+            _timer.cancel();
+            _timer = null;
+            if(currSet + 1 > 7) {
+              completionCount();
+              currState = GameState.completed;
+            }
+            else {
+              currSet++;
+              currState = GameState.waiting;
+            }
           });
         }
     );
-  }
-
-  void pointUp(int add){
-    setState(() {
-      point += add;
-    });
-  }
-
-  void nextSet(){
-    setState(() {
-      currSet++;
-    });
   }
 
   void dispose(){
     if(_timer != null) _timer.cancel();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -112,20 +116,22 @@ class _GamePageState extends State<GamePage> {
       body: Center(
         child: Stack(
           children: [
-            /* Video Call Widget Here */
             Container(
               width: _width,
               height: _height,
+                /* TODO : Video Call Widget Here */
               child: Image.asset(
                 "assets/images/face_example.png",
                 fit: BoxFit.fill
               )
             ),
-            /*
-            View widget which tell you what state is now
-            It depends on 'currState' value.
-            */
+
+            if(currState !=  GameState.counting && currState != GameState.calculating)
+              background(),
+
             FutureBuilder(
+              /* Deciding widget which tell you what state it is now
+                 It depends on 'currState' value. */
               future: conditionalView(),
               builder: (context, snapshot){
                 if(snapshot.hasData){
@@ -139,6 +145,26 @@ class _GamePageState extends State<GamePage> {
           ],
         )
       )
+    );
+  }
+
+  Widget background(){
+    Size _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
+    return Container(
+      width: _width,
+      height: _height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(170, 0, 0, 0),
+              Color.fromARGB(25, 0, 0, 0),
+            ]
+        ),
+      ),
     );
   }
 
@@ -160,7 +186,7 @@ class _GamePageState extends State<GamePage> {
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
             SizedBox(height: 20),
-            Text("상대 찾는 중..", style: TextStyle(color: Colors.white))
+            Text("상대를 기다리는 중..", style: TextStyle(color: Colors.white))
           ],
         )
       );
@@ -173,9 +199,9 @@ class _GamePageState extends State<GamePage> {
     }
     else if(currState == GameState.calculating){
       // get if score calculation is completed
-      int result = await getScore();
-      if(result > -1){
-        currSet++;
+      newPoint = await getScore();
+      if (newPoint > -1){
+        score += newPoint;
         setState(() {
           currState = GameState.result;
           resultTimer();
@@ -184,10 +210,10 @@ class _GamePageState extends State<GamePage> {
       return Container();
     }
     else if(currState == GameState.result){
-      return ResultView(score: 34);
+      return ResultView(score: newPoint);
     }
     else if(currState == GameState.completed){
-
+      return CompletedView();
     }
 
     return Container();
@@ -205,7 +231,7 @@ class _GamePageState extends State<GamePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-                "${point}점",
+                "${score}점",
                 style: _basicStyle
             ),
             Text(
@@ -217,54 +243,37 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
+  Widget CompletedView(){
+    Size _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
+    double _topPadding = MediaQuery.of(context).padding.top;
+    return Center(
+      child: Container(
+          alignment: Alignment.center,
+          child: Text(
+              "Game Completed",
+              textAlign: TextAlign.center,
+              style: _basicStyle.copyWith(fontSize: 40)
+          )
+      ),
+    );
+  }
+
   Widget keywordView(){
     Size _size = MediaQuery.of(context).size;
     double _width = _size.width;
     double _height = _size.height;
     double _topPadding = MediaQuery.of(context).padding.top;
-    return Container(
-      width: _width,
-      height: _height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color.fromARGB(170, 0, 0, 0),
-            Color.fromARGB(25, 0, 0, 0),
-          ]
-        ),
+    return Center(
+      child: Container(
+        alignment: Alignment.center,
+        child: Text(
+            keyword,
+            textAlign: TextAlign.center,
+            style: _basicStyle.copyWith(fontSize: 40)
+        )
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            margin: EdgeInsets.only(top: _topPadding + 15, left: 20, right: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "${point}점",
-                  style: _basicStyle
-                ),
-                Text(
-                  "${currSet}번째/7세트",
-                  style: _basicStyle
-                )
-              ],
-            )
-          ),
-          Container(
-            alignment: Alignment.center,
-            child: Text(
-              keyword,
-              textAlign: TextAlign.center,
-              style: _basicStyle.copyWith(fontSize: 40)
-            )
-          ),
-          SizedBox(height: 50,)
-        ],
-      )
     );
   }
 
@@ -288,32 +297,22 @@ class _GamePageState extends State<GamePage> {
     return Container(
         width: _width,
         height: _height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color.fromARGB(170, 0, 0, 0),
-                Color.fromARGB(25, 0, 0, 0),
-              ]
-          ),
-        ),
         child: Center(
           child: InkWell(
             onTap: (){
+              // TODO : send ready signal to server
               setState(() {
                 currState = GameState.ready;
               });
-
-              // TODO : send ready signal to server
             },
               splashColor: Color.fromARGB(255, 255, 255, 255),
             child: Container(
-                width: _width * 0.6,
-                height: _height * 0.12,
+                //width: _width * 0.6,
+                //height: _height * 0.12,
+              padding: EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(55),
-                    color: Color.fromARGB(100, 255, 255, 255),
+                    borderRadius: BorderRadius.circular(45),
+                    color: Color.fromARGB(255, 255, 255, 255),
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 6.0,
@@ -322,12 +321,10 @@ class _GamePageState extends State<GamePage> {
                       ),
                     ]
                 ),
-                child: Center(
-                  child: Text(
-                      "READY",
-                      style: _basicStyle.copyWith(fontSize: 30)
-                  ),
-                )
+              child: Text(
+                  "READY",
+                  style: _basicStyle.copyWith(fontSize: 25, color: Colors.deepPurple)
+              ),
             )
           )
         )
@@ -374,16 +371,6 @@ class _ResultViewState extends State<ResultView> {
     return Container(
         width: _width,
         height: _height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color.fromARGB(170, 0, 0, 0),
-                Color.fromARGB(25, 0, 0, 0),
-              ]
-          ),
-        ),
         child: Stack(
           alignment: Alignment.center,
           children: [

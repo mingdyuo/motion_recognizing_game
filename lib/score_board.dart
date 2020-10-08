@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:motion_recognizing_game/game_page.dart';
+import 'package:motion_recognizing_game/main.dart';
 
 
 class ScoreData{
@@ -15,24 +17,27 @@ class ScoreBoard extends StatefulWidget {
 
 class _ScoreBoardState extends State<ScoreBoard> {
 
-  List<ScoreData> data = [
-    ScoreData(
-      firstMember: "Tom", secondMember: "Jerry",
-      score: 330
-    ),
-    ScoreData(
-        firstMember: "Michael", secondMember: "Jackson",
-        score: 295
-    ),
-    ScoreData(
-        firstMember: "Tory", secondMember: "Kelly",
-        score: 280
-    ),
-    ScoreData(
-        firstMember: "Ariana", secondMember: "Grande",
-        score: 255
-    ),
-  ];
+  Future<List<ScoreData>> getData() async{
+    List<ScoreData> data = [
+      ScoreData(
+          firstMember: "Tom", secondMember: "Jerry",
+          score: 330
+      ),
+      ScoreData(
+          firstMember: "Michael", secondMember: "Jackson",
+          score: 295
+      ),
+      ScoreData(
+          firstMember: "Tory", secondMember: "Kelly",
+          score: 280
+      ),
+      ScoreData(
+          firstMember: "Ariana", secondMember: "Grande",
+          score: 255
+      ),
+    ];
+    return data;
+  }
 
   final tableTitleStyle = TextStyle(
       fontFamily: "AppleSDGothicNeo",
@@ -131,34 +136,42 @@ class _ScoreBoardState extends State<ScoreBoard> {
               // "SingleChildScrollView" Widget help put all score data
               // by showing them through scrolling
               physics: BouncingScrollPhysics(),
-              child: Table(
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: {
-                    0: FractionColumnWidth(.25),
-                    1: FractionColumnWidth(.5),
-                    2: FractionColumnWidth(.25),
-                  },
-                  children: [
-                    // all elements here should be "TableRow" widget
-                    // which has a row with multiple element
-                    TableRow(
-                      // Title of each Column
-                        decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 231, 230, 230)
-                        ),
+              child: FutureBuilder(
+                future: getData(),
+                builder: (context, snapshot){
+                  if(snapshot.hasData){
+                    return Table(
+                        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                        columnWidths: {
+                          0: FractionColumnWidth(.25),
+                          1: FractionColumnWidth(.5),
+                          2: FractionColumnWidth(.25),
+                        },
                         children: [
-                          Text("Rank", style: tableTitleStyle, textAlign: TextAlign.center,),
-                          Text("Nicknames", style: tableTitleStyle, textAlign: TextAlign.center,),
-                          Text("score", style: tableTitleStyle, textAlign: TextAlign.center,),
+                          // all elements here should be "TableRow" widget
+                          // which has a row with multiple element
+                          TableRow(
+                            // Title of each Column
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 231, 230, 230)
+                              ),
+                              children: [
+                                Text("Rank", style: tableTitleStyle, textAlign: TextAlign.center,),
+                                Text("Nicknames", style: tableTitleStyle, textAlign: TextAlign.center,),
+                                Text("score", style: tableTitleStyle, textAlign: TextAlign.center,),
+                              ]
+                          ),
+                          // create rows according to the "ScoreData"
+                          for(int i=0;i<snapshot.data.length;i++)
+                            dataRow(snapshot.data[i], i),
+                          // if rows are few, make some more rows to fill rest of the board
+                          for(int i=snapshot.data.length;i<15;i++)
+                            emptyRow(i)
                         ]
-                    ),
-                    // create rows according to the "ScoreData"
-                    for(int i=0;i<data.length;i++)
-                      dataRow(data[i], i),
-                    // if rows are few, make some more rows to fill rest of the board
-                    for(int i=data.length;i<15;i++)
-                      emptyRow(i)
-                  ]
+                    );
+                  }
+                  return Container();
+                }
               )
             ),
           ),
@@ -226,17 +239,16 @@ class _ScoreBoardState extends State<ScoreBoard> {
         children: [
           GestureDetector(
             onTap: (){
-              
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>GamePage()));
             },
             child: _button("게임하기")
           ),
           GestureDetector(
               onTap: (){
-
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MyHomePage()));
               },
-              child: _button("끝내기")
+              child: _button("메인으로")
           )
-
         ],
       )
     );
@@ -247,22 +259,26 @@ class _ScoreBoardState extends State<ScoreBoard> {
     double _width = _size.width;
     double _height = _size.height;
     return Container(
-        width: _width * 0.4,
-        height: _height * 0.08,
+        padding: EdgeInsets.only(top: 15, bottom: 15, left: 35, right: 35),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
           color: Color.fromARGB(255, 255, 139, 139),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 6.0,
+              color: Colors.black.withOpacity(.2),
+              offset: Offset(0.0, 6.0),
+            ),
+          ]
         ),
-        child: Center(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
               fontFamily: "AppleSDGothicNeo",
               fontWeight: FontWeight.w400,
               color: Colors.white,
               fontSize: 18
-            )
           )
         )
     );
