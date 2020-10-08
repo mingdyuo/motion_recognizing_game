@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/score_board.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -151,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         children: [
           GestureDetector(
-            onTap: (){
+            onTap: ()async{
               /* Check if user entered nickname in the text field */
               if(_nicknameController.text.isEmpty){
                 _scaffoldKey.currentState.showSnackBar(
@@ -160,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                   _nicknameController.clear();
+                  await _handleCameraAndMic();
                   Navigator.push(
                       context, MaterialPageRoute(
                       builder: (context) => GamePage()
@@ -216,6 +218,12 @@ class _MyHomePageState extends State<MyHomePage> {
             )
         )
       )
+    );
+  }
+
+  Future<void> _handleCameraAndMic() async {
+    await PermissionHandler().requestPermissions(
+      [PermissionGroup.camera, PermissionGroup.microphone],
     );
   }
 }
