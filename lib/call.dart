@@ -120,6 +120,8 @@ class _CallPageState extends State<CallPage> {
     return Expanded(child: Container(child: view));
   }
 
+
+  
   /// Video layout wrapper
   Widget _viewRows(bool myCam) {
     final views = _getRenderViews();
