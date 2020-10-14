@@ -3,6 +3,8 @@ import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/score_board.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import './configs/agora_configs.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -160,13 +162,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }
               else{
-                  _nicknameController.clear();
                   await _handleCameraAndMic();
                   Navigator.push(
                       context, MaterialPageRoute(
-                      builder: (context) => GamePage()
-                  )
-                  );
+                      builder: (context) => GamePage(nickname: _nicknameController.text,)
+                    )
+                  ).then((_)=>_nicknameController.clear());
               }
             },
             child: _button("입장하기"),

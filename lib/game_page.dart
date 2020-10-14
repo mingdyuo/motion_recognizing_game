@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:motion_recognizing_game/call.dart';
+import 'package:motion_recognizing_game/configs/agora_configs.dart';
 import 'dart:async';
 
 import 'package:motion_recognizing_game/score_board.dart';
@@ -15,6 +17,9 @@ enum GameState{
 }
 
 class GamePage extends StatefulWidget {
+  final String nickname;
+
+  GamePage({@required this.nickname});
   @override
   _GamePageState createState() => _GamePageState();
 }
@@ -27,6 +32,9 @@ class _GamePageState extends State<GamePage> {
   int currSet = 1;
   int counting;
   Timer _timer;
+
+  String channelName = 'game';
+  bool myCam = true;
 
   final TextStyle _basicStyle = TextStyle(
       fontFamily: "AppleSDGothicNeo",
@@ -74,6 +82,7 @@ class _GamePageState extends State<GamePage> {
                     timer.cancel();
                     timer = null;
                     /* initialize value of 'counting' for next time use */
+                    myCam = false;
                     // TODO : send signal & picture to server
                   }
                   else {
@@ -97,6 +106,7 @@ class _GamePageState extends State<GamePage> {
               currSet++;
               currState = GameState.waiting;
             }
+            myCam = true;
           });
         }
     );
@@ -116,14 +126,10 @@ class _GamePageState extends State<GamePage> {
       body: Center(
         child: Stack(
           children: [
-            Container(
-              width: _width,
-              height: _height,
-                /* TODO : Video Call Widget Here */
-              child: Image.asset(
-                "assets/images/face_example.png",
-                fit: BoxFit.fill
-              )
+            CallPage(
+              channelName: channelName,
+              APP_ID: APP_ID,
+              camera: myCam
             ),
 
             if(currState !=  GameState.counting && currState != GameState.calculating)
@@ -203,8 +209,8 @@ class _GamePageState extends State<GamePage> {
       if (newPoint > -1){
         score += newPoint;
         setState(() {
-          currState = GameState.result;
           resultTimer();
+          currState = GameState.result;
         });
       }
       return Container();

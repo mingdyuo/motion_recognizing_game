@@ -5,39 +5,57 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/material.dart';
 
-
 class CallPage extends StatefulWidget {
-  final ClientRole role;
+  final String channelName;
+  final ClientRole role = ClientRole.Broadcaster;
   final String APP_ID;
+  bool camera;
 
-  CallPage({@required this.role, @required this.APP_ID});
+  CallPage({Key key, this.channelName, this.APP_ID, this.camera}) : super(key: key);
+
   @override
   _CallPageState createState() => _CallPageState();
 }
 
 class _CallPageState extends State<CallPage> {
-  RtcEngine _engine;
   final _users = <int>[];
   final _infoStrings = <String>[];
+  bool muted = false;
+  RtcEngine _engine;
 
-  void initState(){
-    super.initState();
-    initialize();
-  }
-
-  void dispose(){
-
+  @override
+  void dispose() {
+    // clear users
+    _users.clear();
+    // destroy sdk
+    _engine.leaveChannel();
+    _engine.destroy();
     super.dispose();
   }
 
-  Future<void> initialize() async{
+  @override
+  void initState() {
+    super.initState();
+    // initialize agora sdk
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    if (widget.APP_ID.isEmpty) {
+      setState(() {
+        _infoStrings.add(
+          'APP_ID missing, please provide your APP_ID in settings.dart',
+        );
+        _infoStrings.add('Agora Engine is not starting');
+      });
+      return;
+    }
+
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
-    await _engine.enableWebSdkInteroperability(true);
+    //await _engine.enableWebSdkInteroperability(true);
     VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
     configuration.dimensions = VideoDimensions(1920, 1080);
-    /* await AgoraRtcEngine.setParameters(
-        '''{\"che.video.lowBitRateStreamParameter\":{\"width\":320,\"height\":180,\"frameRate\":15,\"bitRate\":140}}'''); */
     await _engine.setVideoEncoderConfiguration(configuration);
     await _engine.joinChannel(null, widget.channelName, null, 0);
   }
@@ -87,10 +105,67 @@ class _CallPageState extends State<CallPage> {
     }));
   }
 
+  /// Helper function to get list of native views
+  List<Widget> _getRenderViews() {
+    final List<StatefulWidget> list = [];
+    if (widget.role == ClientRole.Broadcaster) {
+      list.add(RtcLocalView.SurfaceView());
+    }
+    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid)));
+    return list;
+  }
+
+  /// Video view wrapper
+  Widget _videoView(view) {
+    return Expanded(child: Container(child: view));
+  }
+
+  /// Video layout wrapper
+  Widget _viewRows(bool myCam) {
+    final views = _getRenderViews();
+    if(views.length == 1){
+      return Container(
+          child: Column(
+            children: <Widget>[_videoView(views[0])],
+          ));
+    }
+    else if(myCam){
+      return Container(
+          child: Column(
+            children: <Widget>[_videoView(views[0])],
+          ));
+    }
+    else{
+      return Container(
+          child: Column(
+            children: <Widget>[_videoView(views[1])],
+          ));
+    }
+  }
+
+  void _onCallEnd(BuildContext context) {
+    Navigator.pop(context);
+  }
+
+  void _onToggleMute() {
+    setState(() {
+      muted = !muted;
+    });
+    _engine.muteLocalAudioStream(muted);
+  }
 
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: Stack(
+          children: <Widget>[
+            _viewRows(widget.camera),
+          ],
+        ),
+      ),
+    );
   }
 }
