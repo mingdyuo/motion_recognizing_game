@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/score_board.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:math';
 
 import './configs/agora_configs.dart';
 
@@ -162,10 +163,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }
               else{
+                  var rand = new Random();
                   await _handleCameraAndMic();
                   Navigator.push(
                       context, MaterialPageRoute(
-                      builder: (context) => GamePage(nickname: _nicknameController.text,)
+                      builder: (context) => GamePage(
+                        nickname: _nicknameController.text,
+                        channel: rand.nextInt(100).toString(),
+                      )
                     )
                   ).then((_)=>_nicknameController.clear());
               }

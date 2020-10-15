@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/main.dart';
 
+import './interface/interface_score_board.dart';
 
-class ScoreData{
-  String firstMember;
-  String secondMember;
-  int score;
-  ScoreData({this.firstMember, this.secondMember, this.score});
-}
 
 class ScoreBoard extends StatefulWidget {
   @override
@@ -16,28 +11,6 @@ class ScoreBoard extends StatefulWidget {
 }
 
 class _ScoreBoardState extends State<ScoreBoard> {
-
-  Future<List<ScoreData>> getData() async{
-    List<ScoreData> data = [
-      ScoreData(
-          firstMember: "Tom", secondMember: "Jerry",
-          score: 330
-      ),
-      ScoreData(
-          firstMember: "Michael", secondMember: "Jackson",
-          score: 295
-      ),
-      ScoreData(
-          firstMember: "Tory", secondMember: "Kelly",
-          score: 280
-      ),
-      ScoreData(
-          firstMember: "Ariana", secondMember: "Grande",
-          score: 255
-      ),
-    ];
-    return data;
-  }
 
   final tableTitleStyle = TextStyle(
       fontFamily: "AppleSDGothicNeo",

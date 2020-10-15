@@ -28,8 +28,11 @@ class _CallPageState extends State<CallPage> {
     // clear users
     _users.clear();
     // destroy sdk
-    _engine.leaveChannel();
-    _engine.destroy();
+    if(_engine != null){
+      _engine.leaveChannel();
+      _engine.destroy();
+    }
+
     super.dispose();
   }
 
@@ -41,7 +44,7 @@ class _CallPageState extends State<CallPage> {
   }
 
   Future<void> initialize() async {
-    if (widget.APP_ID.isEmpty) {
+    if (widget.APP_ID.isEmpty && mounted) {
       setState(() {
         _infoStrings.add(
           'APP_ID missing, please provide your APP_ID in settings.dart',
@@ -70,39 +73,40 @@ class _CallPageState extends State<CallPage> {
 
   /// Add agora event handlers
   void _addAgoraEventHandlers() {
-    _engine.setEventHandler(RtcEngineEventHandler(error: (code) {
-      setState(() {
-        final info = 'onError: $code';
-        _infoStrings.add(info);
-      });
-    }, joinChannelSuccess: (channel, uid, elapsed) {
-      setState(() {
-        final info = 'onJoinChannel: $channel, uid: $uid';
-        _infoStrings.add(info);
-      });
-    }, leaveChannel: (stats) {
-      setState(() {
-        _infoStrings.add('onLeaveChannel');
-        _users.clear();
-      });
-    }, userJoined: (uid, elapsed) {
-      setState(() {
-        final info = 'userJoined: $uid';
-        _infoStrings.add(info);
-        _users.add(uid);
-      });
-    }, userOffline: (uid, elapsed) {
-      setState(() {
-        final info = 'userOffline: $uid';
-        _infoStrings.add(info);
-        _users.remove(uid);
-      });
-    }, firstRemoteVideoFrame: (uid, width, height, elapsed) {
-      setState(() {
-        final info = 'firstRemoteVideo: $uid ${width}x $height';
-        _infoStrings.add(info);
-      });
-    }));
+    if(mounted)
+      _engine.setEventHandler(RtcEngineEventHandler(error: (code) {
+        setState(() {
+          final info = 'onError: $code';
+          _infoStrings.add(info);
+        });
+      }, joinChannelSuccess: (channel, uid, elapsed) {
+        setState(() {
+          final info = 'onJoinChannel: $channel, uid: $uid';
+          _infoStrings.add(info);
+        });
+      }, leaveChannel: (stats) {
+        setState(() {
+          _infoStrings.add('onLeaveChannel');
+          _users.clear();
+        });
+      }, userJoined: (uid, elapsed) {
+        setState(() {
+          final info = 'userJoined: $uid';
+          _infoStrings.add(info);
+          _users.add(uid);
+        });
+      }, userOffline: (uid, elapsed) {
+        setState(() {
+          final info = 'userOffline: $uid';
+          _infoStrings.add(info);
+          _users.remove(uid);
+        });
+      }, firstRemoteVideoFrame: (uid, width, height, elapsed) {
+        setState(() {
+          final info = 'firstRemoteVideo: $uid ${width}x $height';
+          _infoStrings.add(info);
+        });
+      }));
   }
 
   /// Helper function to get list of native views
@@ -121,7 +125,7 @@ class _CallPageState extends State<CallPage> {
   }
 
 
-  
+
   /// Video layout wrapper
   Widget _viewRows(bool myCam) {
     final views = _getRenderViews();
