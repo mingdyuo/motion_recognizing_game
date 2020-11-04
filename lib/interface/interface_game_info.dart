@@ -4,23 +4,23 @@ import 'dart:convert';
 import './interface_url.dart';
 import 'package:dio/dio.dart';
 
-Future<String> findPartner({String nickname}) async{
+Future<String> findPartner({String nickname}) async {
   // send ready signal and get channel name from server
   try {
     final response = await http.get(url_find+"$nickname/");
     if (response.statusCode == 200) {
       var rawItem = jsonDecode(response.body);
+      // if partner not found, send "no"
       return rawItem;
     }
     else
-      return "no";
+      return "no/${response.statusCode}";
   } catch(_) {
-    return "no";
+    return "no/network";
   }
 }
 
 Future<String> getKeyword({String nickname, String channelName, int round}) async{
-
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'channelName' : channelName,
@@ -34,9 +34,9 @@ Future<String> getKeyword({String nickname, String channelName, int round}) asyn
     if(response.statusCode == 200){
       return response.data;
     }
-    else return "no";
+    else return "no/${response.statusCode}";
   } catch(_) {
-    return "no";
+    return "no/network";
   }
 }
 
@@ -53,15 +53,14 @@ Future<String> sendModeling() async {
     if(response.statusCode == 200){
       return response.data;
     }
-    else return "no";
+    else return "no/${response.statusCode}";
   } catch(_) {
-    return "no";
+    return "no/network";
   }
 }
 
-Future<int> getScore({String nickname, String channelName, int round}) async {
+Future<String> getScore({String nickname, String channelName, int round}) async {
   // get score from server
-  // if not calculated yet, return -1
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'channelName' : channelName,
@@ -73,10 +72,10 @@ Future<int> getScore({String nickname, String channelName, int round}) async {
         data: formData
     );
     if(response.statusCode == 200){
-      return response.data;
+      return "${response.data}";
     }
-    else return -1;
+    else return "no/${response.statusCode}";
   } catch(_) {
-    return -1;
+    return "no/network";
   }
 }

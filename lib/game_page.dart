@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:motion_recognizing_game/call.dart';
 import 'package:motion_recognizing_game/configs/agora_configs.dart';
+import 'package:motion_recognizing_game/main.dart';
 import './interface/interface_game_info.dart';
 
 import 'dart:async';
 
 import 'package:motion_recognizing_game/score_board.dart';
 
+/* For current app state */
 enum GameState{
   finding,
   waiting,
@@ -17,6 +19,7 @@ enum GameState{
   calculating,
   result,
   completed,
+  error
 }
 
 class GamePage extends StatefulWidget {
@@ -45,7 +48,6 @@ class _GamePageState extends State<GamePage> {
       color: Colors.white,
       fontSize: 18
   );
-
 
 
   void completionCount(){
@@ -112,34 +114,36 @@ class _GamePageState extends State<GamePage> {
     double _width = _size.width;
     double _height = _size.height;
     return Scaffold(
+        resizeToAvoidBottomInset : false,
       body: Center(
-        child: Stack(
-          children: [
-            CallPage(
-              channelName: widget.channel,
-              APP_ID: APP_ID,
-              camera: myCam
-            ),
+        child: currState!=GameState.error
+          ? Stack(
+            children: [
+              CallPage(
+                channelName: widget.channel,
+                APP_ID: APP_ID,
+                camera: myCam
+              ),
 
-            if(currState !=  GameState.counting && currState != GameState.calculating)
-              background(),
+              if(currState !=  GameState.counting && currState != GameState.calculating)
+                background(),
 
-            FutureBuilder(
-              /* Deciding widget which tell you what state it is now
-                 It depends on 'currState' value. */
-              future: conditionalView(),
-              builder: (context, snapshot){
-                if(snapshot.hasData){
-                    return snapshot.data;
-                }
-                else return Container();
-              },
-            ),
+              FutureBuilder(
+                /* Deciding widget which tell you what state it is now
+                   It depends on 'currState' value. */
+                future: conditionalView(),
+                builder: (context, snapshot){
+                  if(snapshot.hasData){
+                      return snapshot.data;
+                  }
+                  else return Container();
+                },
+              ),
 
-            if(currState != GameState.counting)
-              ScoreInfo()
-          ],
-        )
+              if(currState != GameState.counting)
+                ScoreInfo()
+            ],
+          ) : Container(color: Colors.black)
       )
     );
   }
@@ -168,25 +172,31 @@ class _GamePageState extends State<GamePage> {
     if(currState==GameState.finding){
       findPartner(nickname: widget.nickname).then((value) {
         print("result : $value");
+        List<String> result = value.split("/");
         setState(() {
-          if(value!="no") {
+          if(result[0]!="no") {
             // replace current channel name with new value
             widget.channel = value;
             currState = GameState.waiting;
           }
+          if(result.length == 2 && result[1] == "network"){
+            currState = GameState.error;
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+            showDialog(context: context, builder: (BuildContext context)=>
+                ErrorDialog(errorMsg: "Network not connected",)
+            );
+          }
+          else if(result.length == 2){
+            currState = GameState.error;
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+            showDialog(context: context, builder: (BuildContext context)=>
+                ErrorDialog(errorMsg: "Server error : ${result[1]}",)
+            );
+          }
         });
 
       });
-      return Center(
-          child : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
-              SizedBox(height: 20),
-              Text("상대를 찾는 중..", style: TextStyle(color: Colors.white))
-            ],
-          )
-      );
+      return findingView();
     }
     else if(currState == GameState.waiting){
       return waitingView();
@@ -197,19 +207,37 @@ class _GamePageState extends State<GamePage> {
           channelName: widget.channel,
           round: currSet
       );
-      if(keyword != "no" && mounted){
+      List<String> result = keyword.split("/");
+
+      if(result[0] != "no" && mounted){
         setState(() {
+          keyword = result[0];
           countDown();
           currState = GameState.keyword;
         });
       }
+      if(result.length == 2 && result[1] == "network"){
+        setState(() {currState = GameState.error;});
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+        showDialog(context: context, builder: (BuildContext context)=>
+            ErrorDialog(errorMsg: "Network not connected",)
+        );
+      }
+      else if(result.length == 2){
+        setState(() {currState = GameState.error;});
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+        showDialog(context: context, builder: (BuildContext context)=>
+            ErrorDialog(errorMsg: "Server error : ${result[1]}",)
+        );
+      }
+
       return Center(
         child : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
             SizedBox(height: 20),
-            Text("상대를 기다리는 중..", style: TextStyle(color: Colors.white))
+            Text("Waiting all ready..", style: TextStyle(color: Colors.white))
           ],
         )
       );
@@ -222,18 +250,33 @@ class _GamePageState extends State<GamePage> {
     }
     else if(currState == GameState.calculating){
       // get if score calculation is completed
-      newPoint = await getScore(
+      String rawResult = await getScore(
         nickname: widget.nickname,
         channelName: widget.channel,
         round: currSet
       );
-      if (newPoint > -1){
-        score += newPoint;
-        if(mounted)
-          setState(() {
-            resultTimer();
-            currState = GameState.result;
-          });
+      List<String> result = rawResult.split("/");
+      if(result[0]!= "no" && mounted){
+        setState(() {
+          newPoint = int.parse(result[0]);
+          score += newPoint;
+          resultTimer();
+          currState = GameState.result;
+        });
+      }
+      if(result.length == 2 && result[1] == "network"){
+        setState(() {currState = GameState.error;});
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+        showDialog(context: context, builder: (BuildContext context)=>
+            ErrorDialog(errorMsg: "Network not connected",)
+        );
+      }
+      else if(result.length == 2){
+        setState(() {currState = GameState.error;});
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+        showDialog(context: context, builder: (BuildContext context)=>
+            ErrorDialog(errorMsg: "Server error : ${result[1]}",)
+        );
       }
       return Container();
     }
@@ -259,11 +302,11 @@ class _GamePageState extends State<GamePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-                "${score}점",
+                "SCORE : ${score}",
                 style: _basicStyle
             ),
             Text(
-                "${currSet}번째/7세트",
+                "STAGE ${currSet} / 7",
                 style: _basicStyle
             )
           ],
@@ -312,7 +355,7 @@ class _GamePageState extends State<GamePage> {
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
             Text(
-                "상대방 찾는 중...",
+                "finding other player...",
                 style: _basicStyle.copyWith(fontSize: 120)
             )
           ],
@@ -437,3 +480,61 @@ class _ResultViewState extends State<ResultView> {
 
 
 
+
+class ErrorDialog extends StatelessWidget {
+  String errorMsg;
+  ErrorDialog({this.errorMsg});
+
+  @override
+  Widget build(BuildContext context){
+    Size _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
+    return AlertDialog(
+        titlePadding: EdgeInsets.all(0),
+        contentPadding: EdgeInsets.all(0),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30.0))),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 15, top: 20),
+              child: Text(
+                  errorMsg,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontFamily: "AppleSDGothicNeo",
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                      fontSize: 18
+                  )
+              ),
+            ),
+            Container(
+              height: 45,
+              child: GestureDetector(
+                  onTap: ()=>Navigator.of(context).pop(),
+                  child: Container(
+                    padding: EdgeInsets.only(right: 50, bottom: 10 ),
+                    alignment: Alignment.centerRight,
+                    color: Colors.transparent,
+                    child: Text(
+                      "Done",
+                      style: TextStyle(
+                        fontFamily: "AppleSDGothicNeo",
+                        fontWeight: FontWeight.w400,
+                        color: Color.fromARGB(255, 255, 139, 139),
+                        fontSize: 15,
+                      ),
+                    ),
+                  )
+              )
+            ),
+          ],
+        )
+    );
+  }
+}

@@ -3,7 +3,7 @@ import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/main.dart';
 
 import './interface/interface_score_board.dart';
-
+import 'dart:math';
 
 class ScoreBoard extends StatefulWidget {
   @override
@@ -33,6 +33,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
     double _width = _size.width;
     double _height = _size.height;
     return Scaffold(
+        resizeToAvoidBottomInset : false,
       body: Container(
         width: _width,
         height: _height,
@@ -212,15 +213,17 @@ class _ScoreBoardState extends State<ScoreBoard> {
         children: [
           GestureDetector(
             onTap: (){
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>GamePage()));
+              showDialog(context: context, builder:(BuildContext context)
+                => NicknameDialog()
+              );
             },
-            child: _button("게임하기")
+            child: _button("Get Started")
           ),
           GestureDetector(
               onTap: (){
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MyHomePage()));
               },
-              child: _button("메인으로")
+              child: _button("Back to Main")
           )
         ],
       )
@@ -232,7 +235,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
     double _width = _size.width;
     double _height = _size.height;
     return Container(
-        padding: EdgeInsets.only(top: 15, bottom: 15, left: 35, right: 35),
+        padding: EdgeInsets.only(top: 15, bottom: 15, left: 20, right: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
           color: Color.fromARGB(255, 255, 139, 139),
@@ -256,5 +259,133 @@ class _ScoreBoardState extends State<ScoreBoard> {
         )
     );
   }
+}
 
+class NicknameDialog extends StatelessWidget {
+  TextEditingController _nicknameController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context){
+    Size _size = MediaQuery.of(context).size;
+    double _width = _size.width;
+    double _height = _size.height;
+    return AlertDialog(
+        titlePadding: EdgeInsets.all(0),
+        contentPadding: EdgeInsets.all(0),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30.0))),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 15, top: 20),
+              child: Text(
+                  "Enter a nickname in the game",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontFamily: "AppleSDGothicNeo",
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                      fontSize: 18
+                  )
+              ),
+            ),
+            Container(
+                width: _width * 0.7,
+                padding: EdgeInsets.only(left: 20, right: 20),
+                margin: EdgeInsets.only(left: 20, right: 20, bottom: 15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Color.fromARGB(30, 150, 100, 70)
+                ),
+                child: Center(
+                    child: TextField(
+                      controller: _nicknameController,
+                      decoration: InputDecoration(
+                          hintText: "Your Nickname",
+                          hintStyle: TextStyle(
+                            fontFamily: "AppleSDGothicNeo",
+                            fontWeight: FontWeight.w400,
+                            color: Color.fromARGB(205, 140, 140, 120),
+                            fontSize: 15,
+                          ),
+                          border: InputBorder.none
+                      ),
+                      cursorColor: Colors.pink,
+                    )
+                )
+            ),
+            Container(
+                height: 45,
+                decoration: BoxDecoration(
+                    border: Border(
+                        top: BorderSide(
+                            color: Color.fromARGB(255, 180, 180, 180),
+                            width: 0.3
+                        )
+                    )
+                ),
+                child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Expanded(
+                          flex:1,
+                          child: GestureDetector(
+                              onTap: ()=>Navigator.of(context).pop(),
+                              child: Container(
+                                alignment: Alignment.center,
+                                color: Colors.transparent,
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                    fontFamily: "AppleSDGothicNeo",
+                                    fontWeight: FontWeight.w400,
+                                    color: Color.fromARGB(205, 140, 140, 140),
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              )
+                          ),
+                        ),
+                        Container(
+                          width: 0.3,
+                          color: Color.fromARGB(255, 180, 180, 180),
+                        ),
+                        Expanded(
+                            flex: 1,
+                            child: GestureDetector(
+                                onTap: (){
+                                  var rand = new Random();
+                                  Navigator.of(context).pop();
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>GamePage(
+                                    nickname: _nicknameController.text,
+                                    channel: rand.nextInt(100).toString(),
+                                  )));
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  color: Colors.transparent,
+                                  child: Text(
+                                    "Start",
+                                    style: TextStyle(
+                                      fontFamily: "AppleSDGothicNeo",
+                                      fontWeight: FontWeight.w400,
+                                      color: Color.fromARGB(255, 255, 139, 139),
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                )
+                            )
+                        )
+                      ],
+                    )
+                )
+            ),
+          ],
+        )
+    );
+  }
 }

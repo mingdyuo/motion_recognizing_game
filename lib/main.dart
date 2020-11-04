@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               alignment: Alignment.center,
               child: Text(
-                  "닉네임을 입력하세요.",
+                  "Enter a nickname in the game",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontFamily: "AppleSDGothicNeo",
@@ -139,6 +139,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: _nicknameController,
                 decoration: InputDecoration(
                   hintText: "Your Nickname",
+                  hintStyle: TextStyle(
+                    fontFamily: "AppleSDGothicNeo",
+                    fontWeight: FontWeight.w400,
+                    color: Color.fromARGB(205, 140, 140, 120),
+                    fontSize: 15,
+                  ),
                   border: InputBorder.none
                 ),
                 cursorColor: Colors.pink,
@@ -175,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ).then((_)=>_nicknameController.clear());
               }
             },
-            child: _button("입장하기"),
+            child: _button("Get Started"),
           ),
           SizedBox(height: 10),
           GestureDetector(
@@ -187,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
               )
               );
             },
-            child: _button("랭킹보기"),
+            child: _button("Ranking"),
           )
         ],
       )

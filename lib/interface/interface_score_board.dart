@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:convert';
 import './interface_url.dart';
 
+/* Class to save score information for each game.
+It has two nicknames in a team and score that the team got. */
 class ScoreData{
   String firstMember;
   String secondMember;
@@ -10,7 +12,7 @@ class ScoreData{
   ScoreData({this.firstMember, this.secondMember, this.score});
 }
 
-/* This list is an example for ScoreData class usage
+/* This list is an example about how to use ScoreData class
 List<ScoreData> data = [
   ScoreData(
       firstMember: "Tom", secondMember: "Jerry",
@@ -32,6 +34,7 @@ List<ScoreData> data = [
 */
 
 Future<List<ScoreData>> getData() async {
+  /* Prepare an empty list */
   List<ScoreData> data = [];
 
   try {
