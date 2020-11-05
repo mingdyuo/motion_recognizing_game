@@ -7,11 +7,12 @@ import 'package:dio/dio.dart';
 Future<String> findPartner({String nickname}) async {
   // send ready signal and get channel name from server
   try {
-    final response = await http.get(url_find+"$nickname/");
+    final response = await http.get(url_find+"$nickname/1/");
     if (response.statusCode == 200) {
       var rawItem = jsonDecode(response.body);
       // if partner not found, send "no"
-      return rawItem;
+      print("==========result is : $rawItem");
+      return rawItem.toString();
     }
     else
       return "no/${response.statusCode}";
@@ -23,8 +24,8 @@ Future<String> findPartner({String nickname}) async {
 Future<String> getKeyword({String nickname, String channelName, int round}) async{
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
-    'channelName' : channelName,
-    'round' : round
+    'channelNumber' : channelName,
+//    'round' : round
   });
   try {
     var response = await Dio().post(
@@ -42,6 +43,7 @@ Future<String> getKeyword({String nickname, String channelName, int round}) asyn
 
 Future<String> sendModeling() async {
    // send modeling data to server
+
   FormData formData = FormData.fromMap({
 
   });

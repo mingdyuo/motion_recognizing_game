@@ -36,7 +36,6 @@ List<ScoreData> data = [
 Future<List<ScoreData>> getData() async {
   /* Prepare an empty list */
   List<ScoreData> data = [];
-
   try {
     final response = await http.get(url_score_board);
     if (response.statusCode == 200) {
@@ -44,16 +43,20 @@ Future<List<ScoreData>> getData() async {
 
       for(var item in rawList){
         ScoreData rawitem = ScoreData();
-        rawitem.firstMember = item['firstMember'];
-        rawitem.secondMember = item['secondMember'];
+        rawitem.firstMember = item['player1'];
+        rawitem.secondMember = item['player2'];
         rawitem.score = item['score'];
         data.add(rawitem);
       }
       return data;
     }
-    else
+    else{
+      data.add(ScoreData(firstMember: "server error", secondMember: "code ${response.statusCode}", score: 0));
       return data;
+    }
+
   } catch(_) {
+    data.add(ScoreData(firstMember: "connection", secondMember: "error", score: 0));
     return data;
   }
 }

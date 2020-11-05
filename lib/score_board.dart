@@ -144,7 +144,10 @@ class _ScoreBoardState extends State<ScoreBoard> {
                         ]
                     );
                   }
-                  return Container();
+                  return Container(
+                    padding: EdgeInsets.all(5),
+                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 255, 139, 139),),)
+                  );
                 }
               )
             ),
@@ -260,6 +263,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
     );
   }
 }
+
 
 class NicknameDialog extends StatelessWidget {
   TextEditingController _nicknameController = TextEditingController();

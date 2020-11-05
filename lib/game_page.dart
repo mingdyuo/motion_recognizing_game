@@ -171,7 +171,6 @@ class _GamePageState extends State<GamePage> {
   Future<Widget> conditionalView() async {
     if(currState==GameState.finding){
       findPartner(nickname: widget.nickname).then((value) {
-        print("result : $value");
         List<String> result = value.split("/");
         setState(() {
           if(result[0]!="no") {
@@ -183,7 +182,7 @@ class _GamePageState extends State<GamePage> {
             currState = GameState.error;
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
             showDialog(context: context, builder: (BuildContext context)=>
-                ErrorDialog(errorMsg: "Network not connected",)
+                ErrorDialog(errorMsg: "Connection Error",)
             );
           }
           else if(result.length == 2){
@@ -196,6 +195,7 @@ class _GamePageState extends State<GamePage> {
         });
 
       });
+
       return findingView();
     }
     else if(currState == GameState.waiting){
@@ -220,7 +220,7 @@ class _GamePageState extends State<GamePage> {
         setState(() {currState = GameState.error;});
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
         showDialog(context: context, builder: (BuildContext context)=>
-            ErrorDialog(errorMsg: "Network not connected",)
+            ErrorDialog(errorMsg: "Connection Error",)
         );
       }
       else if(result.length == 2){
@@ -268,7 +268,7 @@ class _GamePageState extends State<GamePage> {
         setState(() {currState = GameState.error;});
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
         showDialog(context: context, builder: (BuildContext context)=>
-            ErrorDialog(errorMsg: "Network not connected",)
+            ErrorDialog(errorMsg: "Connection Error",)
         );
       }
       else if(result.length == 2){
@@ -349,14 +349,16 @@ class _GamePageState extends State<GamePage> {
   }
 
   Widget findingView(){
+
     return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
+            SizedBox(height: 20),
             Text(
                 "finding other player...",
-                style: _basicStyle.copyWith(fontSize: 120)
+                style: _basicStyle.copyWith(fontSize: 14)
             )
           ],
         )
