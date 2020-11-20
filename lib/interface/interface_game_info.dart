@@ -5,26 +5,6 @@ import './interface_url.dart';
 import 'package:dio/dio.dart';
 
 
-//
-//Future<String> nicknameCheck({String nickname, String device})async{
-//  //return "yes";
-//  FormData formData = FormData.fromMap({
-//    'nickname' : nickname,
-//    'deviceID' : device,
-//  });
-//  try {
-//    var response = await Dio().post(
-//        url_find,
-//        data: formData
-//    );
-//    if(response.statusCode == 200){
-//      return response.data;
-//    }
-//    else return "no/${response.statusCode}";
-//  } catch(_) {
-//    return "no/network";
-//  }
-//}
 
 Future<String> findPartner({String nickname, String device}) async {
   // send ready signal and get channel name from server

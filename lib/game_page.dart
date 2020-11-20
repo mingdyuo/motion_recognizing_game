@@ -235,7 +235,6 @@ class _GamePageState extends State<GamePage> {
           nickname: widget.nickname,
           device: deviceID==null?await getDeviceID():deviceID)
           .then((value) {
-            print("result : $value");
             List<String> result = value.split("/");
             setState(() {
               if(result[0]!="no") {
@@ -247,14 +246,14 @@ class _GamePageState extends State<GamePage> {
                 currState = GameState.error;
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
                 showDialog(context: context, builder: (BuildContext context)=>
-                    ErrorDialog(errorMsg: "find partner : Connection Error",)
+                    ErrorDialog(errorMsg: "[find partner]\nConnection Error",)
                 );
               }
               else if(result.length == 2){
                 currState = GameState.error;
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
                 showDialog(context: context, builder: (BuildContext context)=>
-                    ErrorDialog(errorMsg: "Server error : ${result[1]}",)
+                    ErrorDialog(errorMsg: "[find partner]\nServer error : ${result[1]}",)
                 );
               }
             });
@@ -271,29 +270,34 @@ class _GamePageState extends State<GamePage> {
           channelName: widget.channel,
           round: currSet
       );
+
+      print(keyword);
+
       List<String> result = keyword.split("/");
 
-      if(result[0] != "no" && mounted){
-        setState(() {
+      setState(() {
+        if(result[0] != "no"){
           keyword = result[0];
           countDown();
           currState = GameState.keyword;
-        });
-      }
-      if(result.length == 2 && result[1] == "network"){
-        setState(() {currState = GameState.error;});
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-        showDialog(context: context, builder: (BuildContext context)=>
-            ErrorDialog(errorMsg: "Connection Error",)
-        );
-      }
-      else if(result.length == 2){
-        setState(() {currState = GameState.error;});
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-        showDialog(context: context, builder: (BuildContext context)=>
-            ErrorDialog(errorMsg: "Server error : ${result[1]}",)
-        );
-      }
+        }
+        if(result.length == 2 && result[1] == "network"){
+          currState = GameState.error;
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+          showDialog(context: context, builder: (BuildContext context)=>
+              ErrorDialog(errorMsg: "[get keyword]\nConnection Error",)
+          );
+        }
+        else if(result.length == 2){
+          currState = GameState.error;
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+          showDialog(context: context, builder: (BuildContext context)=>
+              ErrorDialog(errorMsg: "[get keyword]\nServer error : ${result[1]}",)
+          );
+        }
+      });
+
+
 
       return Center(
           child : Column(
@@ -332,14 +336,14 @@ class _GamePageState extends State<GamePage> {
         setState(() {currState = GameState.error;});
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
         showDialog(context: context, builder: (BuildContext context)=>
-            ErrorDialog(errorMsg: "Connection Error",)
+            ErrorDialog(errorMsg: "[getScore]\nConnection Error",)
         );
       }
       else if(result.length == 2){
         setState(() {currState = GameState.error;});
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
         showDialog(context: context, builder: (BuildContext context)=>
-            ErrorDialog(errorMsg: "Server error : ${result[1]}",)
+            ErrorDialog(errorMsg: "[getScore]\nServer error : ${result[1]}",)
         );
       }
       return Container();
