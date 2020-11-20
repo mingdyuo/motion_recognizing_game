@@ -46,6 +46,7 @@ dependencies:
   # capture screen
   native_screenshot: ^0.0.4
   path:
+  device_info: ^1.0.0
 
 dev_dependencies:
   flutter_test:

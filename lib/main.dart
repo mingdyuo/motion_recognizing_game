@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:motion_recognizing_game/dialog.dart';
 import 'package:motion_recognizing_game/game_page.dart';
-import 'package:motion_recognizing_game/interface/interface_game_info.dart';
 import 'package:motion_recognizing_game/score_board.dart';
 import 'package:motion_recognizing_game/tutorial.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
+
+
 
 import './configs/agora_configs.dart';
 
@@ -196,31 +198,14 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                   await _handleCameraAndMic();
-                  nicknameCheck(nickname : _nicknameController.text).then((result)async{
-                    if(result == "yes"){
-                      var rand = new Random();
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => GamePage(
-                            nickname: _nicknameController.text,
-                            channel: rand.nextInt(100).toString(),
-                          )
-                      )).then((_)=>_nicknameController.clear());
-                    }
-                    else if(result == "no"){
-                      _nicknameController.clear();
-                      showDialog(context: context, builder: (context)
-                        => ErrorDialog(errorMsg: "Nickname already exist")
-                      );
-                    }
-                    else {
-                      List<String> errorMsg = result.split("/");
-                      _nicknameController.clear();
-                      showDialog(context: context, builder: (context)
-                        => ErrorDialog(errorMsg: "nickname check error\n${errorMsg[1]}")
-                      );
-                    }
-                  });
+                  var rand = new Random();
+                  Navigator.push(
+                      context, MaterialPageRoute(
+                      builder: (context) => GamePage(
+                        nickname: _nicknameController.text,
+                        channel: rand.nextInt(100).toString(),
+                      )
+                  )).then((_)=>_nicknameController.clear());
               }
             },
             child: _button("Get Started"),
@@ -280,6 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
       [PermissionGroup.camera, PermissionGroup.microphone, PermissionGroup.storage],
     );
   }
+
 }
 
 

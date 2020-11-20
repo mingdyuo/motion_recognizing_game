@@ -366,31 +366,14 @@ class NicknameDialog extends StatelessWidget {
                                 onTap: ()async{
                                   Navigator.of(context).pop();
                                   await _handleCameraAndMic();
-                                  nicknameCheck(nickname : _nicknameController.text).then((result){
-                                    if(result == "yes"){
-                                      var rand = new Random();
-                                      Navigator.push(
-                                          context, MaterialPageRoute(
-                                          builder: (context) => GamePage(
-                                            nickname: _nicknameController.text,
-                                            channel: rand.nextInt(100).toString(),
-                                          )
-                                      )).then((_)=>_nicknameController.clear());
-                                    }
-                                    else if(result == "no"){
-                                      _nicknameController.clear();
-                                      showDialog(context: context, builder: (context)
-                                      => ErrorDialog(errorMsg: "Nickname already exist")
-                                      );
-                                    }
-                                    else {
-                                      List<String> errorMsg = result.split("/");
-                                      _nicknameController.clear();
-                                      showDialog(context: context, builder: (context)
-                                      => ErrorDialog(errorMsg: "nickname check error\n${errorMsg[1]}")
-                                      );
-                                    }
-                                  });
+                                  var rand = new Random();
+                                  Navigator.push(
+                                      context, MaterialPageRoute(
+                                      builder: (context) => GamePage(
+                                        nickname: _nicknameController.text,
+                                        channel: rand.nextInt(100).toString(),
+                                      )
+                                  )).then((_)=>_nicknameController.clear());
                                 },
                                 child: Container(
                                   alignment: Alignment.center,

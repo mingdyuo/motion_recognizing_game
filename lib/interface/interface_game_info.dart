@@ -4,42 +4,52 @@ import 'dart:convert';
 import './interface_url.dart';
 import 'package:dio/dio.dart';
 
-Future<String> nicknameCheck({String nickname})async{
-  return "yes";
-  try {
-    final response = await http.get(url_find+"$nickname/");
-    if (response.statusCode == 200) {
-      return response.body;
-    }
-    else{
-      return "no/${response.statusCode}";
-    }
-  } catch(_) {
-    return "no/network";
-  }
-}
 
-Future<String> findPartner({String nickname}) async {
-  return "22";
+//
+//Future<String> nicknameCheck({String nickname, String device})async{
+//  //return "yes";
+//  FormData formData = FormData.fromMap({
+//    'nickname' : nickname,
+//    'deviceID' : device,
+//  });
+//  try {
+//    var response = await Dio().post(
+//        url_find,
+//        data: formData
+//    );
+//    if(response.statusCode == 200){
+//      return response.data;
+//    }
+//    else return "no/${response.statusCode}";
+//  } catch(_) {
+//    return "no/network";
+//  }
+//}
+
+Future<String> findPartner({String nickname, String device}) async {
   // send ready signal and get channel name from server
-  try {
-    final response = await http.get(url_find+"$nickname/1/");
-    if (response.statusCode == 200) {
-      return response.body;
-    }
-    else{
-      return "no/${response.statusCode}";
-    }
-
-  } catch(_) {
-    return "no/network";
-  }
-}
-
-Future<String> getKeyword({String nickname, String channelName, int round}) async{
-  return "abc";
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
+    'deviceID' : device,
+  });
+  try {
+    var response = await Dio().post(
+        url_find,
+        data: formData
+    );
+    if(response.statusCode == 200){
+      return response.data;
+    }
+    else return "no/${response.statusCode}";
+  } catch(_) {
+    return "no/network";
+  }
+}
+
+Future<String> getKeyword({String deviceID, String channelName, int round}) async{
+  //return "abc";
+  FormData formData = FormData.fromMap({
+    'deviceID' : deviceID,
     'channelNumber' : channelName,
   });
   try {
@@ -78,7 +88,7 @@ Future<String> sendModeling() async {
 
 Future<String> getScore({String nickname, String channelName, int round}) async {
   // get score from server
-  return "no";
+  // return "no";
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'channelName' : channelName,

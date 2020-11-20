@@ -8,8 +8,11 @@ import 'package:native_screenshot/native_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import './interface/interface_game_info.dart';
 
-import 'dart:async';
 import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:device_info/device_info.dart';
+import 'dart:async';
+
 
 import 'package:motion_recognizing_game/score_board.dart';
 
@@ -42,6 +45,7 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   GameState currState = GameState.finding;
   String keyword = "no";
+  String deviceID;
   int score = 0;
   int newPoint;
   int currSet = 1;
@@ -58,6 +62,44 @@ class _GamePageState extends State<GamePage> {
       color: Colors.white,
       fontSize: 18
   );
+
+  Future<String> getDeviceID() async{
+    String deviceData;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceData = androidInfo.id;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceData = iosInfo.utsname.machine;
+      }
+    } on PlatformException {
+      print("device id get error");
+    }
+
+    if (!mounted) return "temp";
+    return deviceData;
+  }
+
+  Future<void> setDeviceID() async{
+    String deviceData;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceData = androidInfo.id;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceData = iosInfo.utsname.machine;
+      }
+    } on PlatformException {
+      print("device id get error");
+    }
+
+    if (!mounted) return "";
+    deviceID = deviceData;
+  }
 
   void completionCount(){
     _timer = Timer(Duration(seconds: 4),
@@ -116,6 +158,11 @@ class _GamePageState extends State<GamePage> {
           });
         }
     );
+  }
+
+  void initState(){
+    super.initState();
+    setDeviceID();
   }
 
   void dispose(){
@@ -184,30 +231,34 @@ class _GamePageState extends State<GamePage> {
 
   Future<Widget> conditionalView() async {
     if(currState==GameState.finding){
-      findPartner(nickname: widget.nickname).then((value) {
-        List<String> result = value.split("/");
-        setState(() {
-          if(result[0]!="no") {
-            // replace current channel name with new value
-            widget.channel = value;
-            currState = GameState.waiting;
-          }
-          if(result.length == 2 && result[1] == "network"){
-            currState = GameState.error;
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-            showDialog(context: context, builder: (BuildContext context)=>
-                ErrorDialog(errorMsg: "Connection Error",)
-            );
-          }
-          else if(result.length == 2){
-            currState = GameState.error;
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-            showDialog(context: context, builder: (BuildContext context)=>
-                ErrorDialog(errorMsg: "Server error : ${result[1]}",)
-            );
-          }
+      findPartner(
+          nickname: widget.nickname,
+          device: deviceID==null?await getDeviceID():deviceID)
+          .then((value) {
+            print("result : $value");
+            List<String> result = value.split("/");
+            setState(() {
+              if(result[0]!="no") {
+                // replace current channel name with new value
+                widget.channel = value;
+                currState = GameState.waiting;
+              }
+              if(result.length == 2 && result[1] == "network"){
+                currState = GameState.error;
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+                showDialog(context: context, builder: (BuildContext context)=>
+                    ErrorDialog(errorMsg: "find partner : Connection Error",)
+                );
+              }
+              else if(result.length == 2){
+                currState = GameState.error;
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+                showDialog(context: context, builder: (BuildContext context)=>
+                    ErrorDialog(errorMsg: "Server error : ${result[1]}",)
+                );
+              }
+            });
         });
-      });
 
       return findingView();
     }
@@ -216,7 +267,7 @@ class _GamePageState extends State<GamePage> {
     }
     else if(currState == GameState.ready){
       keyword = await getKeyword(
-          nickname: widget.nickname,
+          deviceID: deviceID,
           channelName: widget.channel,
           round: currSet
       );
