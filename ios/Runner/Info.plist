@@ -45,5 +45,7 @@
     <string>need camera permission</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Need MicroPhone permission.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Take screenshots and save it to the PhotoLibrary.</string>
 </dict>
 </plist>

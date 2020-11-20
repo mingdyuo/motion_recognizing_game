@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:motion_recognizing_game/dialog.dart';
 import 'package:motion_recognizing_game/game_page.dart';
+import 'package:motion_recognizing_game/interface/interface_game_info.dart';
 import 'package:motion_recognizing_game/score_board.dart';
+import 'package:motion_recognizing_game/tutorial.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
 
@@ -37,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   /* Scaffold key is used for recognizing exact page in which we will show snackbar message. */
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+
   @override
   Widget build(BuildContext context) {
     Size _size = MediaQuery.of(context).size;
@@ -70,10 +74,32 @@ class _MyHomePageState extends State<MyHomePage> {
                     Padding(
                         padding: EdgeInsets.only(bottom: _height * 0.1),
                         child: _buttons()
-                    )
+                    ),
                   ],
                 ),
               ),
+            Positioned(
+              bottom: _height * 0.02,
+              child: GestureDetector(
+                onTap: (){
+                  Navigator.push(
+                      context, MaterialPageRoute(
+                      builder: (context) => Tutorial()
+                  )
+                  );
+                },
+                child: Container(
+                    color: Colors.transparent,
+                    child: Text(
+                        "How To Play",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        )
+                    )
+                ),
+              )
+            )
+
           ],
         ),
       )
@@ -169,16 +195,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }
               else{
-                  var rand = new Random();
                   await _handleCameraAndMic();
-                  Navigator.push(
-                      context, MaterialPageRoute(
-                      builder: (context) => GamePage(
-                        nickname: _nicknameController.text,
-                        channel: rand.nextInt(100).toString(),
-                      )
-                    )
-                  ).then((_)=>_nicknameController.clear());
+                  nicknameCheck(nickname : _nicknameController.text).then((result)async{
+                    if(result == "yes"){
+                      var rand = new Random();
+                      Navigator.push(
+                          context, MaterialPageRoute(
+                          builder: (context) => GamePage(
+                            nickname: _nicknameController.text,
+                            channel: rand.nextInt(100).toString(),
+                          )
+                      )).then((_)=>_nicknameController.clear());
+                    }
+                    else if(result == "no"){
+                      _nicknameController.clear();
+                      showDialog(context: context, builder: (context)
+                        => ErrorDialog(errorMsg: "Nickname already exist")
+                      );
+                    }
+                    else {
+                      List<String> errorMsg = result.split("/");
+                      _nicknameController.clear();
+                      showDialog(context: context, builder: (context)
+                        => ErrorDialog(errorMsg: "nickname check error\n${errorMsg[1]}")
+                      );
+                    }
+                  });
               }
             },
             child: _button("Get Started"),
@@ -235,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _handleCameraAndMic() async {
     await PermissionHandler().requestPermissions(
-      [PermissionGroup.camera, PermissionGroup.microphone],
+      [PermissionGroup.camera, PermissionGroup.microphone, PermissionGroup.storage],
     );
   }
 }

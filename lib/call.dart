@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/material.dart';
+
+import 'package:native_screenshot/native_screenshot.dart';
 
 class CallPage extends StatefulWidget {
   final String channelName;
@@ -41,6 +44,17 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     // initialize agora sdk
     initialize();
+  }
+
+  void screenShot()async{
+    String path = await NativeScreenshot.takeScreenshot();
+    print("=================================");
+    print(path);
+    showDialog(context: context, builder: (context)=>
+      AlertDialog(
+        content: Image.file(File(path))
+      )
+    );
   }
 
   Future<void> initialize() async {
@@ -125,9 +139,9 @@ class _CallPageState extends State<CallPage> {
   }
 
 
-
   /// Video layout wrapper
   Widget _viewRows(bool myCam) {
+
     final views = _getRenderViews();
     if(views.length == 1){
       return Container(

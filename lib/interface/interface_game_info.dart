@@ -4,28 +4,43 @@ import 'dart:convert';
 import './interface_url.dart';
 import 'package:dio/dio.dart';
 
+Future<String> nicknameCheck({String nickname})async{
+  return "yes";
+  try {
+    final response = await http.get(url_find+"$nickname/");
+    if (response.statusCode == 200) {
+      return response.body;
+    }
+    else{
+      return "no/${response.statusCode}";
+    }
+  } catch(_) {
+    return "no/network";
+  }
+}
+
 Future<String> findPartner({String nickname}) async {
+  return "22";
   // send ready signal and get channel name from server
   try {
     final response = await http.get(url_find+"$nickname/1/");
     if (response.statusCode == 200) {
-      var rawItem = jsonDecode(response.body);
-      // if partner not found, send "no"
-      print("==========result is : $rawItem");
-      return rawItem.toString();
+      return response.body;
     }
-    else
+    else{
       return "no/${response.statusCode}";
+    }
+
   } catch(_) {
     return "no/network";
   }
 }
 
 Future<String> getKeyword({String nickname, String channelName, int round}) async{
+  return "abc";
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'channelNumber' : channelName,
-//    'round' : round
   });
   try {
     var response = await Dio().post(
@@ -63,6 +78,7 @@ Future<String> sendModeling() async {
 
 Future<String> getScore({String nickname, String channelName, int round}) async {
   // get score from server
+  return "no";
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'channelName' : channelName,

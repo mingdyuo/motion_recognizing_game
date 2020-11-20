@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:motion_recognizing_game/dialog.dart';
 import 'package:motion_recognizing_game/game_page.dart';
+import 'package:motion_recognizing_game/interface/interface_game_info.dart';
 import 'package:motion_recognizing_game/main.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 import './interface/interface_score_board.dart';
 import 'dart:math';
 
@@ -361,13 +363,34 @@ class NicknameDialog extends StatelessWidget {
                         Expanded(
                             flex: 1,
                             child: GestureDetector(
-                                onTap: (){
-                                  var rand = new Random();
+                                onTap: ()async{
                                   Navigator.of(context).pop();
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>GamePage(
-                                    nickname: _nicknameController.text,
-                                    channel: rand.nextInt(100).toString(),
-                                  )));
+                                  await _handleCameraAndMic();
+                                  nicknameCheck(nickname : _nicknameController.text).then((result){
+                                    if(result == "yes"){
+                                      var rand = new Random();
+                                      Navigator.push(
+                                          context, MaterialPageRoute(
+                                          builder: (context) => GamePage(
+                                            nickname: _nicknameController.text,
+                                            channel: rand.nextInt(100).toString(),
+                                          )
+                                      )).then((_)=>_nicknameController.clear());
+                                    }
+                                    else if(result == "no"){
+                                      _nicknameController.clear();
+                                      showDialog(context: context, builder: (context)
+                                      => ErrorDialog(errorMsg: "Nickname already exist")
+                                      );
+                                    }
+                                    else {
+                                      List<String> errorMsg = result.split("/");
+                                      _nicknameController.clear();
+                                      showDialog(context: context, builder: (context)
+                                      => ErrorDialog(errorMsg: "nickname check error\n${errorMsg[1]}")
+                                      );
+                                    }
+                                  });
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -390,6 +413,12 @@ class NicknameDialog extends StatelessWidget {
             ),
           ],
         )
+    );
+  }
+
+  Future<void> _handleCameraAndMic() async {
+    await PermissionHandler().requestPermissions(
+      [PermissionGroup.camera, PermissionGroup.microphone, PermissionGroup.storage],
     );
   }
 }
