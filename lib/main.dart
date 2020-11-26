@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: _width,
                 child: Image.asset(
                     "assets/images/wave2.png",
+                    width: _width,
                     fit: BoxFit.fitWidth
                 )
             ),
@@ -203,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       context, MaterialPageRoute(
                       builder: (context) => GamePage(
                         nickname: _nicknameController.text,
-                        channel: rand.nextInt(100).toString(),
+                        channel: rand.nextInt(300).toString(),
                       )
                   )).then((_)=>_nicknameController.clear());
               }

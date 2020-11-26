@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 
 
 Future<String> findPartner({String nickname, String device}) async {
-  // send ready signal and get channel name from server
+
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'deviceID' : device,
@@ -18,7 +18,12 @@ Future<String> findPartner({String nickname, String device}) async {
         data: formData
     );
     if(response.statusCode == 200){
-      return response.data;
+
+      if(response.data['title']=="no"){
+        return "no/Matching error";
+      }
+      String result = '${response.data['title']}/${response.data['channel_number']}';
+      return result;
     }
     else return "no/${response.statusCode}";
   } catch(_) {
@@ -26,11 +31,11 @@ Future<String> findPartner({String nickname, String device}) async {
   }
 }
 
-Future<String> getKeyword({String deviceID, String channelName, int round}) async{
-  //return "abc";
+Future<String> getKeyword({String title, String deviceID, String channelName, int round}) async{
   FormData formData = FormData.fromMap({
+    'title' : title,
     'deviceID' : deviceID,
-    'channelNumber' : channelName,
+    'channel_number' : channelName,
   });
   try {
     var response = await Dio().post(
@@ -46,15 +51,18 @@ Future<String> getKeyword({String deviceID, String channelName, int round}) asyn
   }
 }
 
-Future<String> sendModeling() async {
+Future<String> sendModeling(String deviceID, String channelNumber, Map<int, dynamic> model) async {
    // send modeling data to server
 
   FormData formData = FormData.fromMap({
-
+    'deviceID': deviceID,
+    "channel_number": channelNumber,
+    'title': jsonEncode(model),
+    'result': model
   });
   try {
     var response = await Dio().post(
-        url_modeling,
+        url_main+'score/',
         data: formData
     );
     if(response.statusCode == 200){

@@ -173,7 +173,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
         ),
         Padding(
           padding: EdgeInsets.all(2.5),
-          child: Text("${data.firstMember} & ${data.secondMember}", style: tableDetailStyle, textAlign: TextAlign.center,),
+          child: Text("${data.members}", style: tableDetailStyle, textAlign: TextAlign.center,),
         ),
         Padding(
             padding: EdgeInsets.all(2.5),

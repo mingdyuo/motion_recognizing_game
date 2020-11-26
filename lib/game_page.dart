@@ -4,6 +4,7 @@ import 'package:motion_recognizing_game/call.dart';
 import 'package:motion_recognizing_game/configs/agora_configs.dart';
 import 'package:motion_recognizing_game/dialog.dart';
 import 'package:motion_recognizing_game/main.dart';
+import 'package:motion_recognizing_game/posenet.dart';
 import 'package:native_screenshot/native_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import './interface/interface_game_info.dart';
@@ -46,6 +47,7 @@ class _GamePageState extends State<GamePage> {
   GameState currState = GameState.finding;
   String keyword = "no";
   String deviceID;
+  String gameTitle;
   int score = 0;
   int newPoint;
   int currSet = 1;
@@ -110,7 +112,15 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<void> capturePng() async{
-    NativeScreenshot.takeScreenshot().then((String s){print(s);});
+    print("******Capture png");
+    NativeScreenshot.takeScreenshot()
+        .then((String imagePath){
+          poseNet(
+              deviceID: deviceID,
+              channelNumber: widget.channel,
+              imagePath: imagePath
+          );
+        });
   }
 
   void countDown(){
@@ -118,26 +128,27 @@ class _GamePageState extends State<GamePage> {
     /* initialize value of 'counting' for next time use */
     counting = 7;
     _timer = new Timer.periodic(oneSec,
-            (timer) => setState(
-                (){
-              if(counting == 4){
-                counting --;
-                currState = GameState.counting;
-              }
-              else if(counting == 0){
-                /* capture a picture and calculate points
-                 then send it to server */
-                capturePng();
-                timer.cancel();
-                timer = null;
-                myCam = false;
-                currState = GameState.calculating;
-              }
-              else {
-                counting--;
-              }
-            }
-        ));
+            (timer) =>setState((){
+                if(counting == 4){
+                  counting --;
+                  currState = GameState.counting;
+                }
+                else if(counting == 0){
+                  /* capture a picture and calculate points
+                               then send it to server */
+                  capturePng();
+                  timer.cancel();
+                  timer = null;
+                  myCam = false;
+                  currState = GameState.calculating;
+                }
+                else {
+                  counting--;
+                }
+
+            })
+
+    );
   }
 
   void resultTimer(){
@@ -237,19 +248,23 @@ class _GamePageState extends State<GamePage> {
           .then((value) {
             List<String> result = value.split("/");
             setState(() {
+              print("********************value is [$value]");
+              print("******************** [${result[0]}], [${result[1]}]");
+
               if(result[0]!="no") {
                 // replace current channel name with new value
-                widget.channel = value;
+                gameTitle = result[0];
+                widget.channel = result[1];
                 currState = GameState.waiting;
               }
-              if(result.length == 2 && result[1] == "network"){
+              if(result[1] == "network"){
                 currState = GameState.error;
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
                 showDialog(context: context, builder: (BuildContext context)=>
                     ErrorDialog(errorMsg: "[find partner]\nConnection Error",)
                 );
               }
-              else if(result.length == 2){
+              else if(result[0] == "no"){
                 currState = GameState.error;
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
                 showDialog(context: context, builder: (BuildContext context)=>
@@ -266,12 +281,11 @@ class _GamePageState extends State<GamePage> {
     }
     else if(currState == GameState.ready){
       keyword = await getKeyword(
+          title: gameTitle,
           deviceID: deviceID,
           channelName: widget.channel,
           round: currSet
       );
-
-      print(keyword);
 
       List<String> result = keyword.split("/");
 

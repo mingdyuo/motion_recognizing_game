@@ -6,10 +6,9 @@ import './interface_url.dart';
 /* Class to save score information for each game.
 It has two nicknames in a team and score that the team got. */
 class ScoreData{
-  String firstMember;
-  String secondMember;
+  String members;
   int score;
-  ScoreData({this.firstMember, this.secondMember, this.score});
+  ScoreData({this.members, this.score});
 }
 
 /* This list is an example about how to use ScoreData class
@@ -42,21 +41,21 @@ Future<List<ScoreData>> getData() async {
       var rawList = jsonDecode(response.body) as List;
 
       for(var item in rawList){
+        print(item);
         ScoreData rawitem = ScoreData();
-        rawitem.firstMember = item['player1'];
-        rawitem.secondMember = item['player2'];
+        rawitem.members = item['title'];
         rawitem.score = item['score'];
         data.add(rawitem);
       }
       return data;
     }
     else{
-      data.add(ScoreData(firstMember: "server error", secondMember: "code ${response.statusCode}", score: 0));
+      data.add(ScoreData(members: "server error\ncode ${response.statusCode}", score: 0));
       return data;
     }
 
   } catch(_) {
-    data.add(ScoreData(firstMember: "connection", secondMember: "error", score: 0));
+    data.add(ScoreData(members: "connection error", score: 0));
     return data;
   }
 }
