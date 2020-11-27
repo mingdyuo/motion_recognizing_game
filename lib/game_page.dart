@@ -52,6 +52,7 @@ class _GamePageState extends State<GamePage> {
   int newPoint;
   int currSet = 1;
   int counting;
+  String captureImagePath;
   Timer _timer;
 
 
@@ -111,16 +112,16 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  Future<void> capturePng() async{
+  Future<String> capturePng() async{
     print("******Capture png");
-    NativeScreenshot.takeScreenshot()
-        .then((String imagePath){
-          poseNet(
-              deviceID: deviceID,
-              channelNumber: widget.channel,
-              imagePath: imagePath
-          );
-        });
+    String path = await NativeScreenshot.takeScreenshot();
+    return path;
+//          poseNet(
+//              deviceID: deviceID,
+//              channelNumber: widget.channel,
+//              imagePath: imagePath
+//          );
+
   }
 
   void countDown(){
@@ -128,25 +129,34 @@ class _GamePageState extends State<GamePage> {
     /* initialize value of 'counting' for next time use */
     counting = 7;
     _timer = new Timer.periodic(oneSec,
-            (timer) =>setState((){
-                if(counting == 4){
+            (timer) async{
+              if(counting == 4){
+                setState(() {
                   counting --;
                   currState = GameState.counting;
-                }
-                else if(counting == 0){
-                  /* capture a picture and calculate points
-                               then send it to server */
-                  capturePng();
-                  timer.cancel();
-                  timer = null;
-                  myCam = false;
-                  currState = GameState.calculating;
-                }
-                else {
-                  counting--;
-                }
+                });
 
-            })
+              }
+              else if(counting == 0){
+                /* capture a picture and calculate points
+                               then send it to server */
+                capturePng().then((String path){
+                  captureImagePath = path;
+                  setState(() {
+                    timer.cancel();
+                    timer = null;
+                    myCam = false;
+                    currState = GameState.calculating;
+                  });
+                });
+              }
+              else {
+                setState(() {
+                  counting--;
+                });
+              }
+
+            }
 
     );
   }
@@ -331,12 +341,19 @@ class _GamePageState extends State<GamePage> {
       return countingView();
     }
     else if(currState == GameState.calculating){
+      print("calculating state");
       // get if score calculation is completed
-      String rawResult = await getScore(
-          nickname: widget.nickname,
-          channelName: widget.channel,
-          round: currSet
+      String rawResult = await poseNet(
+          deviceID: deviceID,
+          channelNumber: widget.channel,
+          imagePath: captureImagePath
       );
+
+//      String rawResult = await getScore(
+//          nickname: widget.nickname,
+//          channelName: widget.channel,
+//          round: currSet
+//      );
       List<String> result = rawResult.split("/");
       if(result[0]!= "no" && mounted){
         setState(() {

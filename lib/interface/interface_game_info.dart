@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 
 
 Future<String> findPartner({String nickname, String device}) async {
-
+  return "asdfsdf/3";
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'deviceID' : device,
@@ -32,6 +32,7 @@ Future<String> findPartner({String nickname, String device}) async {
 }
 
 Future<String> getKeyword({String title, String deviceID, String channelName, int round}) async{
+  return "keykey";
   FormData formData = FormData.fromMap({
     'title' : title,
     'deviceID' : deviceID,
@@ -51,13 +52,15 @@ Future<String> getKeyword({String title, String deviceID, String channelName, in
   }
 }
 
-Future<String> sendModeling(String deviceID, String channelNumber, Map<int, dynamic> model) async {
+Future<String> sendModeling(String deviceID, String channelNumber, var model) async {
    // send modeling data to server
+
+  String jsonModel = json.encode(model);
 
   FormData formData = FormData.fromMap({
     'deviceID': deviceID,
     "channel_number": channelNumber,
-    'title': jsonEncode(model),
+    'title': jsonModel,
     'result': model
   });
   try {

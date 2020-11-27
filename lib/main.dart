@@ -5,6 +5,7 @@ import 'package:motion_recognizing_game/game_page.dart';
 import 'package:motion_recognizing_game/score_board.dart';
 import 'package:motion_recognizing_game/tutorial.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:tflite/tflite.dart';
 import 'dart:math';
 
 
@@ -42,6 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
   /* Scaffold key is used for recognizing exact page in which we will show snackbar message. */
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+
+  String path = "/storage/emulated/0/motion_recognizing_game/native_screenshot-20201127110049.png";
 
   @override
   Widget build(BuildContext context) {
@@ -222,6 +225,16 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
             child: _button("Ranking"),
+          ),
+          GestureDetector(
+            onTap: ()async{
+              print("start");
+              String res = await Tflite.loadModel(
+                model: "assets/posenet_mv1_075_float_from_checkpoints.tflite",
+              );
+              print("res loaded : [${res}]");
+            },
+            child: _button("Posnet"),
           )
         ],
       )
