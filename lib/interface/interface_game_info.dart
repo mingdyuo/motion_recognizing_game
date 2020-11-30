@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 
 
 Future<String> findPartner({String nickname, String device}) async {
-  return "asdfsdf/3";
+  // return "nasdf/2";
   FormData formData = FormData.fromMap({
     'nickname' : nickname,
     'deviceID' : device,
@@ -32,7 +32,7 @@ Future<String> findPartner({String nickname, String device}) async {
 }
 
 Future<String> getKeyword({String title, String deviceID, String channelName, int round}) async{
-  return "keykey";
+  //return "keykey";
   FormData formData = FormData.fromMap({
     'title' : title,
     'deviceID' : deviceID,
@@ -52,23 +52,27 @@ Future<String> getKeyword({String title, String deviceID, String channelName, in
   }
 }
 
-Future<String> sendModeling(String deviceID, String channelNumber, var model) async {
+Future<String> sendModeling({String deviceID, String channelNumber, String title, int round, var model}) async {
    // send modeling data to server
 
   String jsonModel = json.encode(model);
-
+  print("send model=================");
   FormData formData = FormData.fromMap({
     'deviceID': deviceID,
     "channel_number": channelNumber,
-    'title': jsonModel,
-    'result': model
+    'title': title,
+    'result':jsonModel,
+    'round': round.toString()
   });
   try {
     var response = await Dio().post(
         url_main+'score/',
         data: formData
     );
+    print("response get==============");
+    print(response.data);
     if(response.statusCode == 200){
+
       return response.data;
     }
     else return "no/${response.statusCode}";
@@ -76,25 +80,25 @@ Future<String> sendModeling(String deviceID, String channelNumber, var model) as
     return "no/network";
   }
 }
-
-Future<String> getScore({String nickname, String channelName, int round}) async {
-  // get score from server
-  // return "no";
-  FormData formData = FormData.fromMap({
-    'nickname' : nickname,
-    'channelName' : channelName,
-    'round' : round
-  });
-  try {
-    var response = await Dio().post(
-        url_score,
-        data: formData
-    );
-    if(response.statusCode == 200){
-      return "${response.data}";
-    }
-    else return "no/${response.statusCode}";
-  } catch(_) {
-    return "no/network";
-  }
-}
+//
+// Future<String> getScore({String nickname, String channelName, int round}) async {
+//   // get score from server
+//   // return "no";
+//   FormData formData = FormData.fromMap({
+//     'nickname' : nickname,
+//     'channelName' : channelName,
+//     'round' : round
+//   });
+//   try {
+//     var response = await Dio().post(
+//         url_score,
+//         data: formData
+//     );
+//     if(response.statusCode == 200){
+//       return "${response.data}";
+//     }
+//     else return "no/${response.statusCode}";
+//   } catch(_) {
+//     return "no/network";
+//   }
+// }

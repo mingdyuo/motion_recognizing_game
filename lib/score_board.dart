@@ -8,6 +8,8 @@ import './interface/interface_score_board.dart';
 import 'dart:math';
 
 class ScoreBoard extends StatefulWidget {
+  String deviceID;
+  ScoreBoard({@required this.deviceID});
   @override
   _ScoreBoardState createState() => _ScoreBoardState();
 }
@@ -219,7 +221,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
           GestureDetector(
             onTap: (){
               showDialog(context: context, builder:(BuildContext context)
-                => NicknameDialog()
+                => NicknameDialog(widget.deviceID)
               );
             },
             child: _button("Get Started")
@@ -269,6 +271,8 @@ class _ScoreBoardState extends State<ScoreBoard> {
 
 class NicknameDialog extends StatelessWidget {
   TextEditingController _nicknameController = TextEditingController();
+  String deviceID;
+  NicknameDialog(this.deviceID);
 
   @override
   Widget build(BuildContext context){
@@ -370,6 +374,7 @@ class NicknameDialog extends StatelessWidget {
                                   Navigator.push(
                                       context, MaterialPageRoute(
                                       builder: (context) => GamePage(
+                                        deviceID: deviceID,
                                         nickname: _nicknameController.text,
                                         channel: rand.nextInt(100).toString(),
                                       )

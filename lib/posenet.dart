@@ -9,49 +9,49 @@ Future<String> loadModel() async {
 }
 
 
-Future<String> poseNet({String deviceID, String channelNumber, String imagePath}) async {
+Future<String> poseNet({String deviceID, String channelNumber, String imagePath, String title, int round}) async {
   String isSuccess = await loadModel();
-
+  print("postnet start==========");
   if(isSuccess!="success"){
     return "no/posnet";
   }
   print(imagePath);
  // int startTime = new DateTime.now().millisecondsSinceEpoch;
-  print("before recog ==============");
+
   var recognitions = await Tflite.runPoseNetOnImage(
     path: imagePath,
     numResults: 1,
   );
 
-  if(recognitions.isEmpty){
-
-  }
-
-  print("after recog ==============");
-//  int endTime = new DateTime.now().millisecondsSinceEpoch;
-//   print("Inference took ${endTime - startTime}ms");
-  print(recognitions);
-  var result = (recognitions.first)["keypoints"];
-
-
-  print("this is result +==========================");
-  print(result); // String serverResult = await sendModeling(result);
-  //return serverResult;
   var model = [];
-  for(int i=0;i<=16;i++){
-    model.add(result[i]);
+  if(recognitions.isEmpty){
+    Map<String, dynamic> temp = Map<String,dynamic>();
+    temp['score'] = 0.0;
+    temp['part'] = 'nose';
+    temp['x'] = 0.0;
+    temp['y'] = 0.0;
+    for(int i=0;i<=16;i++){
+      model.add(temp);
+    }
   }
-//  print("indexing int==========");
-//  print(result[0]);
-//  print("indexing string==========");
-//  print(result['0']);
+  else{
+    var result = (recognitions.first)["keypoints"];
+    for(int i=0;i<=16;i++){
+      model.add(result[i]);
+    }
+  }
 
-  String response = await sendModeling(deviceID, channelNumber, model);
+  print(model);
+  String response = await sendModeling(
+      deviceID: deviceID,
+      channelNumber: channelNumber,
+      model: model,
+      title: title,
+      round: round
+  );
 
   final dir = Directory(imagePath);
   dir.deleteSync(recursive: true);
 
-  return "no";
   return response;
-  // image 제거하는 코드 삽입
 }

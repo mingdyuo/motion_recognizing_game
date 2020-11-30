@@ -7,7 +7,9 @@ import 'package:motion_recognizing_game/tutorial.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math';
-
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:device_info/device_info.dart';
 
 
 import './configs/agora_configs.dart';
@@ -42,9 +44,51 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _nicknameController = TextEditingController();
   /* Scaffold key is used for recognizing exact page in which we will show snackbar message. */
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  String deviceID;
 
+  Future<String> getDeviceID() async{
+    String deviceData;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceData = androidInfo.id;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceData = iosInfo.utsname.machine;
+      }
+    } on PlatformException {
+      print("device id get error");
+    }
 
-  String path = "/storage/emulated/0/motion_recognizing_game/native_screenshot-20201127110049.png";
+    if (!mounted) return "temp";
+    return deviceData;
+  }
+
+  Future<void> setDeviceID() async{
+    String deviceData;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceData = androidInfo.id;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceData = iosInfo.utsname.machine;
+      }
+    } on PlatformException {
+      print("device id get error");
+    }
+
+    if (!mounted) return "temporary";
+    deviceID = deviceData;
+  }
+
+  void initState(){
+    super.initState();
+    setDeviceID();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                       context, MaterialPageRoute(
                       builder: (context) => GamePage(
+                        deviceID: deviceID,
                         nickname: _nicknameController.text,
                         channel: rand.nextInt(300).toString(),
                       )
@@ -220,22 +265,12 @@ class _MyHomePageState extends State<MyHomePage> {
               _nicknameController.clear();
               Navigator.push(
                   context, MaterialPageRoute(
-                  builder: (context) => ScoreBoard()
+                  builder: (context) => ScoreBoard(deviceID : deviceID)
               )
               );
             },
             child: _button("Ranking"),
           ),
-          GestureDetector(
-            onTap: ()async{
-              print("start");
-              String res = await Tflite.loadModel(
-                model: "assets/posenet_mv1_075_float_from_checkpoints.tflite",
-              );
-              print("res loaded : [${res}]");
-            },
-            child: _button("Posnet"),
-          )
         ],
       )
     );

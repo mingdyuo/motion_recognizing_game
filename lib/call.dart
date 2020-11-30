@@ -46,17 +46,6 @@ class _CallPageState extends State<CallPage> {
     initialize();
   }
 
-  void screenShot()async{
-    String path = await NativeScreenshot.takeScreenshot();
-    print("=================================");
-    print(path);
-    showDialog(context: context, builder: (context)=>
-      AlertDialog(
-        content: Image.file(File(path))
-      )
-    );
-  }
-
   Future<void> initialize() async {
     if (widget.APP_ID.isEmpty && mounted) {
       setState(() {
@@ -141,21 +130,24 @@ class _CallPageState extends State<CallPage> {
 
   /// Video layout wrapper
   Widget _viewRows(bool myCam) {
-
+    print("mycam in callpage : ${myCam}");
     final views = _getRenderViews();
     if(views.length == 1){
+      print("AAA");
       return Container(
           child: Column(
             children: <Widget>[_videoView(views[0])],
           ));
     }
     else if(myCam){
+      print("BBB");
       return Container(
           child: Column(
             children: <Widget>[_videoView(views[0])],
           ));
     }
     else{
+      print("CCC");
       return Container(
           child: Column(
             children: <Widget>[_videoView(views[1])],
