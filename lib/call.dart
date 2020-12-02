@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:native_screenshot/native_screenshot.dart';
 
 class CallPage extends StatefulWidget {
-  final String channelName;
+  String channelName;
   final ClientRole role = ClientRole.Broadcaster;
   final String APP_ID;
   bool camera;
@@ -23,7 +23,7 @@ class CallPage extends StatefulWidget {
 class _CallPageState extends State<CallPage> {
   final _users = <int>[];
   final _infoStrings = <String>[];
-  bool muted = false;
+  bool muted = true;
   RtcEngine _engine;
 
   @override
@@ -130,8 +130,8 @@ class _CallPageState extends State<CallPage> {
 
   /// Video layout wrapper
   Widget _viewRows(bool myCam) {
-    print("mycam in callpage : ${myCam}");
     final views = _getRenderViews();
+    print("view length : ${views.length}");
     if(views.length == 1){
       print("AAA");
       return Container(
@@ -169,6 +169,8 @@ class _CallPageState extends State<CallPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("----------------in call page");
+    print("channel : ${widget.channelName}, myCam : ${widget.camera}");
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(

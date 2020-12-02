@@ -44,7 +44,7 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   GameState currState = GameState.finding;
-  String keyword = "no";
+  String keyword = "error";
   String gameTitle;
   int score = 0;
   int newPoint;
@@ -172,6 +172,11 @@ class _GamePageState extends State<GamePage> {
             });
   }
 
+  Future<bool> camChange()async{
+    bool result = myCam;
+    await Future.delayed(Duration(milliseconds: 1));
+    return result;
+  }
 
 
 
@@ -185,38 +190,38 @@ class _GamePageState extends State<GamePage> {
     Size _size = MediaQuery.of(context).size;
     double _width = _size.width;
     double _height = _size.height;
-    print("channel : ${widget.channel}, mycam : ${myCam}");
+    // print("channel : ${widget.channel}, mycam : ${myCam}");
     return Scaffold(
         resizeToAvoidBottomInset : false,
         body: Center(
             child: currState!=GameState.error
-                ? Stack(
-              children: [
-                /* TODO : error handling 정리, camera 상대방꺼 보이도록 */
-                CallPage(
-                    channelName: widget.channel,
-                    APP_ID: APP_ID,
-                    camera: myCam
-                ),
-
-                if(currState !=  GameState.counting && currState != GameState.calculating)
-                  background(),
-
-                FutureBuilder(
-                  /* Deciding widget which tell you what state it is now
-                   It depends on 'currState' value. */
-                  future: conditionalView(),
-                  builder: (context, snapshot){
-                    if(snapshot.hasData){
-                      return snapshot.data;
-                    }
-                    else return Container();
-                  },
-                ),
-                if(currState != GameState.counting)
-                  ScoreInfo(),
-              ],
-            ) : CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
+                ? FutureBuilder(
+                    /* Deciding widget which tell you what state it is now
+                         It depends on 'currState' value. */
+                    future: conditionalView(),
+                    builder: (context, snapshot){
+                      // /* TODO : error handling 코드 정리, camera 상대방꺼 보이도록 */
+                      if(snapshot.hasData){
+                        return Stack(
+                          children: [
+                            CallPage(
+                                channelName: widget.channel,
+                                APP_ID: APP_ID,
+                                camera: myCam
+                            ),
+                            if(currState !=  GameState.counting && currState != GameState.calculating)
+                              background(),
+                            snapshot.data,
+                            if(currState != GameState.counting)
+                              ScoreInfo(),
+                          ],
+                        );
+                        return snapshot.data;
+                      }
+                      else return Container();
+                    },
+                  )
+                : CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
         )
     );
   }
@@ -285,13 +290,6 @@ class _GamePageState extends State<GamePage> {
       return waitingView();
     }
     else if(currState == GameState.ready){
-      // keyword = await getKeyword(
-      //     title: gameTitle,
-      //     deviceID: deviceID,
-      //     channelName: widget.channel,
-      //     round: currSet
-      // );
-
       getKeyword(
           title: gameTitle,
           deviceID: widget.deviceID,
@@ -422,8 +420,6 @@ class _GamePageState extends State<GamePage> {
             ],
           )
       );
-
-
     }
     else if(currState == GameState.result){
       print("result view====================");
