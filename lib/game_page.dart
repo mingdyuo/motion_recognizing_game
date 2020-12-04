@@ -17,7 +17,6 @@ import 'package:motion_recognizing_game/score_board.dart';
 
 /* For current app state */
 enum GameState{
-  finding,
   waiting,
   ready,
   keyword,
@@ -246,47 +245,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<Widget> conditionalView() async {
-    if(currState==GameState.finding){
-      findPartner(
-          nickname: widget.nickname,
-          device: widget.deviceID)
-          .then((value) {
-            List<String> result = value.split("/");
-            setState(() {
-              if(result[0]!="no") {
-                // replace current channel name with new value
-               // gameTitle = result[0];
-                widget.channel = result[1];
-                callFlag = 1;
-                currState = GameState.waiting;
-              }
-              if(value == "no"){
-                currState = GameState.error;
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-                showDialog(context: context, builder: (BuildContext context)=>
-                    ErrorDialog(errorMsg: "[find partner]\nError",)
-                );
-              }
-              else if(result[1] == "network"){
-                currState = GameState.error;
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-                showDialog(context: context, builder: (BuildContext context)=>
-                    ErrorDialog(errorMsg: "[find partner]\nConnection Error",)
-                );
-              }
-              else if(result[0] == "no"){
-                currState = GameState.error;
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-                showDialog(context: context, builder: (BuildContext context)=>
-                    ErrorDialog(errorMsg: "[find partner]\nServer error : ${result[1]}",)
-                );
-              }
-            });
-        });
-
-      return findingView();
-    }
-    else if(currState == GameState.waiting){
+    if(currState == GameState.waiting){
       return waitingView();
     }
     else if(currState == GameState.ready){
@@ -488,23 +447,6 @@ class _GamePageState extends State<GamePage> {
               style: _basicStyle.copyWith(fontSize: 40)
           )
       ),
-    );
-  }
-
-  Widget findingView(){
-
-    return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.lime),),
-            SizedBox(height: 20),
-            Text(
-                "finding other player...",
-                style: _basicStyle.copyWith(fontSize: 14)
-            )
-          ],
-        )
     );
   }
 
