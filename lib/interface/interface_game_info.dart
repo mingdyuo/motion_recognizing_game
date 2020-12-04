@@ -78,25 +78,3 @@ Future<String> sendModeling({String deviceID, String channelNumber, String title
     return "no/network";
   }
 }
-//
-// Future<String> getScore({String nickname, String channelName, int round}) async {
-//   // get score from server
-//   // return "no";
-//   FormData formData = FormData.fromMap({
-//     'nickname' : nickname,
-//     'channelName' : channelName,
-//     'round' : round
-//   });
-//   try {
-//     var response = await Dio().post(
-//         url_score,
-//         data: formData
-//     );
-//     if(response.statusCode == 200){
-//       return "${response.data}";
-//     }
-//     else return "no/${response.statusCode}";
-//   } catch(_) {
-//     return "no/network";
-//   }
-// }

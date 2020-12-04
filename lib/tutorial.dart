@@ -10,6 +10,20 @@ class Tutorial extends StatefulWidget {
 class _TutorialState extends State<Tutorial> {
   final controller = PageController(viewportFraction: 1);
 
+  List<Widget> pages = [
+    PhoneImage(assetName: 'assets/images/tutorial_main_1.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_main_2.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_2.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_3.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_4.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_5_1.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_5_2.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_5_3.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_6.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_7.jpg',),
+    PhoneImage(assetName: 'assets/images/tutorial_8.jpg',),
+  ];
+
   @override
   Widget build(BuildContext context) {
     Size _size = MediaQuery.of(context).size;
@@ -33,22 +47,13 @@ class _TutorialState extends State<Tutorial> {
             PageView(
                 controller: controller,
                 physics: BouncingScrollPhysics(),
-                children: <Widget>[
-                  ImagePage(
-                    assetName: "assets/images/tutorial_main_1.png",
-                  ),
-                  ImagePage(
-                    assetName: "assets/images/tutorial_main_2.png",
-                  ),
-
-
-                ]
+                children: pages
             ),
             Positioned(
               bottom : _height * 0.05,
               child: SmoothPageIndicator(
                 controller: controller,
-                count: 2,
+                count: pages.length,
                 effect: JumpingDotEffect(
                   activeDotColor: Color.fromARGB(255,0xEE, 0xC0, 0xC6)
                 ),
@@ -62,38 +67,37 @@ class _TutorialState extends State<Tutorial> {
 }
 
 
-
-class ImagePage extends StatelessWidget{
+class PhoneImage extends StatelessWidget {
   String assetName;
-  ImagePage({this.assetName});
+  PhoneImage({this.assetName});
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     Size _size = MediaQuery.of(context).size;
     double _width = _size.width;
     double _height = _size.height;
     return Container(
+      width: _width * 0.75,
+      height: _width * 0.75 * 2.2,
+      child: Stack(
         alignment: Alignment.center,
-        margin: EdgeInsets.all(30),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 5,
-                  spreadRadius: 5,
-                  color: Colors.black.withOpacity(.2),
-                  offset: Offset(3.0, 3.0),
-                ),
-              ]
+        children: [
+          Container(
+            padding: EdgeInsets.all(30),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Image.asset(
+                assetName,
+                width: _width * 0.7,
+              ),
+            ),
           ),
-          child: Image.asset(
-              assetName,
-              fit: BoxFit.contain
-          ),
-        )
+          Image.asset(
+              'assets/images/frame.png',
+              width: _width * 0.75,
+            fit: BoxFit.fill
+          )
+        ],
+      ),
     );
   }
 }
