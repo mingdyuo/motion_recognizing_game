@@ -71,7 +71,6 @@ Future<String> sendModeling({String deviceID, String channelNumber, String title
     );
     print(response.data);
     if(response.statusCode == 200){
-
       return response.data;
     }
     else return "no/${response.statusCode}";

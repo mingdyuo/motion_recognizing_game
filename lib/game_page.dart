@@ -77,13 +77,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<String> capturePng() async{
-    print("******Capture png");
+    print("Capture png");
     String path = await NativeScreenshot.takeScreenshot();
     return path;
   }
 
   void getScore() async {
-    print("=======getScore start");
     poseNet(
         deviceID: widget.deviceID,
         channelNumber: widget.channel,
@@ -95,7 +94,6 @@ class _GamePageState extends State<GamePage> {
         resultReceived = s;
         isResultReceived = true;
         capture = true;
-        print("=========================result is ${resultReceived}");
       });
     });
 
@@ -124,7 +122,7 @@ class _GamePageState extends State<GamePage> {
                   });
 
                   capturePng().then((String path){
-                    print("========capture completed");
+                    print("capture completed");
                     captureImagePath = path;
                     getScore();
                   });
@@ -158,12 +156,12 @@ class _GamePageState extends State<GamePage> {
                 setState(() {
                   _timer.cancel();
                   _timer = null;
-                  myCam = true;
                   if(currSet + 1 > 7) {
                     completionCount();
                     currState = GameState.completed;
                   }
                   else {
+                    myCam = true;
                     currSet++;
                     currState = GameState.waiting;
                   }
@@ -307,11 +305,9 @@ class _GamePageState extends State<GamePage> {
       return countingView();
     }
     else if(currState == GameState.calculating){
-      print("=========================calculating state");
       // get if score calculation is completed
 
       if(isResultReceived){
-        print("================result received is ${resultReceived}");
         List<String> result = resultReceived.split("/");
         if(result[0]!= "no"){
           setState(() {
@@ -323,7 +319,7 @@ class _GamePageState extends State<GamePage> {
             print(currState);
           });
         }
-        else if(resultReceived=="no"){
+        else{
           setState(() {
             if(_timer.isActive) {
               _timer.cancel();
@@ -332,42 +328,18 @@ class _GamePageState extends State<GamePage> {
             currState = GameState.error;
           });
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-          showDialog(context: context, builder: (BuildContext context)=>
-              ErrorDialog(errorMsg: "[getScore]\nCalculation Error",)
-          );
-        }
-        else if(result.length == 2 && result[1] == "network"){
-          if(_timer.isActive) {
-            _timer.cancel();
-            _timer = null;
-          }
-          setState(() {currState = GameState.error;});
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-          showDialog(context: context, builder: (BuildContext context)=>
-              ErrorDialog(errorMsg: "[getScore]\nConnection Error",)
-          );
-        }
-        else if(result.length == 2){
-          if(_timer.isActive) {
-            _timer.cancel();
-            _timer = null;
-          }
-          setState(() {currState = GameState.error;});
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-          showDialog(context: context, builder: (BuildContext context)=>
-              ErrorDialog(errorMsg: "[getScore]\nServer error : ${result[1]}",)
-          );
-        }
-        else{
-          if(_timer.isActive) {
-            _timer.cancel();
-            _timer = null;
-          }
-          setState(() {currState = GameState.error;});
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-          showDialog(context: context, builder: (BuildContext context)=>
-              ErrorDialog(errorMsg: "[getScore]\nCalculation Error",)
-          );
+          if(result.length == 1)
+            showDialog(context: context, builder: (BuildContext context)=>
+                ErrorDialog(errorMsg: "[getScore]\nCalculation Error",)
+            );
+          else if(result.length == 2 && result[1] == "network")
+            showDialog(context: context, builder: (BuildContext context)=>
+                ErrorDialog(errorMsg: "[getScore]\nConnection Error",)
+            );
+          else if(result.length == 2)
+            showDialog(context: context, builder: (BuildContext context)=>
+                ErrorDialog(errorMsg: "[getScore]\nServer error : ${result[1]}",)
+            );
         }
       }
       else return Center(
@@ -382,7 +354,6 @@ class _GamePageState extends State<GamePage> {
       );
     }
     else if(currState == GameState.result){
-      print("result view====================");
       return ResultView(score: newPoint);
     }
     else if(currState == GameState.completed){
