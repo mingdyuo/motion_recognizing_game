@@ -11,18 +11,13 @@ Future<String> loadModel() async {
 
 Future<String> poseNet({String deviceID, String channelNumber, String imagePath, String title, int round}) async {
   String isSuccess = await loadModel();
-  print("postnet start==========");
   if(isSuccess!="success"){
     return "no/posnet";
   }
-  print(imagePath);
- // int startTime = new DateTime.now().millisecondsSinceEpoch;
-
   var recognitions = await Tflite.runPoseNetOnImage(
     path: imagePath,
     numResults: 1,
   );
-
   var model = [];
   if(recognitions.isEmpty){
     Map<String, dynamic> temp = Map<String,dynamic>();
@@ -41,7 +36,6 @@ Future<String> poseNet({String deviceID, String channelNumber, String imagePath,
     }
   }
 
-  print(model);
   String response = await sendModeling(
       deviceID: deviceID,
       channelNumber: channelNumber,

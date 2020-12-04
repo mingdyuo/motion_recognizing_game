@@ -35,17 +35,18 @@ void logError(String code, String message)
 class GamePage extends StatefulWidget {
   final String nickname;
   String channel;
+  String gameTitle;
   String deviceID;
 
-  GamePage({@required this.nickname, @required this.channel, @required this.deviceID});
+  GamePage({@required this.nickname, @required this.channel, @required this.gameTitle, @required this.deviceID});
   @override
   _GamePageState createState() => _GamePageState();
 }
 
 class _GamePageState extends State<GamePage> {
-  GameState currState = GameState.finding;
+  GameState currState = GameState.waiting;
   String keyword = "error";
-  String gameTitle;
+  //String gameTitle;
   int score = 0;
   int newPoint;
   int currSet = 1;
@@ -53,7 +54,7 @@ class _GamePageState extends State<GamePage> {
   String captureImagePath;
   Timer _timer;
 
-
+  int callFlag = 0;
   bool isResultReceived = false;
   String resultReceived = "";
   bool myCam = true;
@@ -88,7 +89,7 @@ class _GamePageState extends State<GamePage> {
         deviceID: widget.deviceID,
         channelNumber: widget.channel,
         imagePath: captureImagePath,
-        title: gameTitle,
+        title: widget.gameTitle,
         round: currSet
     ).then((String s){
       setState(() {
@@ -146,7 +147,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void resultTimer(){
-    counting = 5;
+    counting = 7;
     _timer = new Timer.periodic(Duration(seconds:1),
             (timer) {
               if(counting>0){
@@ -190,7 +191,6 @@ class _GamePageState extends State<GamePage> {
     Size _size = MediaQuery.of(context).size;
     double _width = _size.width;
     double _height = _size.height;
-    // print("channel : ${widget.channel}, mycam : ${myCam}");
     return Scaffold(
         resizeToAvoidBottomInset : false,
         body: Center(
@@ -200,14 +200,13 @@ class _GamePageState extends State<GamePage> {
                          It depends on 'currState' value. */
                     future: conditionalView(),
                     builder: (context, snapshot){
-                      // /* TODO : error handling 코드 정리, camera 상대방꺼 보이도록 */
                       if(snapshot.hasData){
                         return Stack(
                           children: [
                             CallPage(
                                 channelName: widget.channel,
                                 APP_ID: APP_ID,
-                                camera: myCam
+                                camera: myCam,
                             ),
                             if(currState !=  GameState.counting && currState != GameState.calculating)
                               background(),
@@ -256,8 +255,9 @@ class _GamePageState extends State<GamePage> {
             setState(() {
               if(result[0]!="no") {
                 // replace current channel name with new value
-                gameTitle = result[0];
+               // gameTitle = result[0];
                 widget.channel = result[1];
+                callFlag = 1;
                 currState = GameState.waiting;
               }
               if(value == "no"){
@@ -291,7 +291,7 @@ class _GamePageState extends State<GamePage> {
     }
     else if(currState == GameState.ready){
       getKeyword(
-          title: gameTitle,
+          title: widget.gameTitle,
           deviceID: widget.deviceID,
           channelName: widget.channel,
           round: currSet
@@ -309,6 +309,7 @@ class _GamePageState extends State<GamePage> {
               if(result[0] != "no"){
                 keyword = result[0];
                 countDown();
+                callFlag++;
                 currState = GameState.keyword;
               }
               else if(result.length == 2 && result[1] == "network"){

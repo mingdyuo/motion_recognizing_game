@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:motion_recognizing_game/dialog.dart';
 import 'package:motion_recognizing_game/game_page.dart';
+import 'package:motion_recognizing_game/interface/interface_game_info.dart';
 import 'package:motion_recognizing_game/score_board.dart';
 import 'package:motion_recognizing_game/tutorial.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -45,25 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
   /* Scaffold key is used for recognizing exact page in which we will show snackbar message. */
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String deviceID;
-
-  Future<String> getDeviceID() async{
-    String deviceData;
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    try {
-      if (Platform.isAndroid) {
-        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-        deviceData = androidInfo.id;
-      } else if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-        deviceData = iosInfo.utsname.machine;
-      }
-    } on PlatformException {
-      print("device id get error");
-    }
-
-    if (!mounted) return "temp";
-    return deviceData;
-  }
 
   Future<void> setDeviceID() async{
     String deviceData;
@@ -246,16 +229,45 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               else{
                   await _handleCameraAndMic();
-                  var rand = new Random();
-                  Navigator.push(
-                      context, MaterialPageRoute(
-                      builder: (context) => GamePage(
-                        deviceID: deviceID,
-                        nickname: _nicknameController.text,
-                        channel: rand.nextInt(300).toString(),
-                      )
-                  )).then((_)=>_nicknameController.clear());
+                  showDialog(context: context, builder:(context)
+                    => Center(child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 238, 119, 133))
+                    ))
+                  );
+                  String rawResult = await findPartner(
+                                            nickname: _nicknameController.text,
+                                            device: deviceID);
+                  List<String> result = rawResult.split("/");
+                 Navigator.of(context).pop();
+                  if(result[0]!="no"){
+                    Navigator.push(
+                        context, MaterialPageRoute(
+                        builder: (context) => GamePage(
+                          deviceID: deviceID,
+                          nickname: _nicknameController.text,
+                          gameTitle: result[0],
+                          channel: result[1],
+                        )
+                    ));
+                  }
+                  else{
+                    Navigator.of(context).pop();
+                    if(result.length == 1)
+                      showDialog(context: context, builder: (BuildContext context)=>
+                          ErrorDialog(errorMsg: "[find partner]\nError",)
+                      );
+                    else if(result[1] == "network")
+                      showDialog(context: context, builder: (BuildContext context)=>
+                          ErrorDialog(errorMsg: "[find partner]\nConnection Error",)
+                      );
+
+                    else
+                      showDialog(context: context, builder: (BuildContext context)=>
+                          ErrorDialog(errorMsg: "[find partner]\nServer error : ${result[1]}")
+                      );
+                  }
               }
+              _nicknameController.clear();
             },
             child: _button("Get Started"),
           ),

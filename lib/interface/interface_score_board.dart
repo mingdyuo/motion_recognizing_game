@@ -41,7 +41,6 @@ Future<List<ScoreData>> getData() async {
       var rawList = jsonDecode(response.body) as List;
 
       for(var item in rawList){
-        print(item);
         ScoreData rawitem = ScoreData();
         rawitem.members = item['title'];
         rawitem.score = item['score'];

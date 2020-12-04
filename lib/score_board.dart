@@ -16,6 +16,8 @@ class ScoreBoard extends StatefulWidget {
 
 class _ScoreBoardState extends State<ScoreBoard> {
 
+  final _scoreBoardKey = GlobalKey<ScaffoldState>();
+
   final tableTitleStyle = TextStyle(
       fontFamily: "AppleSDGothicNeo",
       fontWeight: FontWeight.w500,
@@ -37,6 +39,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
     double _width = _size.width;
     double _height = _size.height;
     return Scaffold(
+      key: _scoreBoardKey,
         resizeToAvoidBottomInset : false,
       body: Container(
         width: _width,
@@ -272,6 +275,7 @@ class _ScoreBoardState extends State<ScoreBoard> {
 class NicknameDialog extends StatelessWidget {
   TextEditingController _nicknameController = TextEditingController();
   String deviceID;
+  // GlobalKey<ScaffoldState> _key;
   NicknameDialog(this.deviceID);
 
   @override
@@ -368,17 +372,56 @@ class NicknameDialog extends StatelessWidget {
                             flex: 1,
                             child: GestureDetector(
                                 onTap: ()async{
-                                  Navigator.of(context).pop();
                                   await _handleCameraAndMic();
-                                  var rand = new Random();
-                                  Navigator.push(
-                                      context, MaterialPageRoute(
-                                      builder: (context) => GamePage(
-                                        deviceID: deviceID,
+                                  if(_nicknameController.text.isEmpty){
+                                    // _key.currentState.showSnackBar(
+                                    //   SnackBar(content: Text("Enter your nickname for this game."))
+                                    // );
+                                  }
+                                  else {
+                                    await _handleCameraAndMic();
+                                    showDialog(context: context, builder: (context) =>
+                                        Center(child: CircularProgressIndicator(
+                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                                Color.fromARGB(255, 238, 119, 133))
+                                        ))
+                                    );
+                                    String rawResult = await findPartner(
                                         nickname: _nicknameController.text,
-                                        channel: rand.nextInt(100).toString(),
-                                      )
-                                  )).then((_)=>_nicknameController.clear());
+                                        device: deviceID);
+                                    List<String> result = rawResult.split("/");
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+                                    if (result[0] != "no") {
+                                      //Navigator.of(context).pop();
+                                      Navigator.push(
+                                          context, MaterialPageRoute(
+                                          builder: (context) =>
+                                              GamePage(
+                                                deviceID: deviceID,
+                                                nickname: _nicknameController.text,
+                                                gameTitle: result[0],
+                                                channel: result[1],
+                                              )
+                                      ));
+                                    }
+                                    else {
+                                      if (result.length == 1)
+                                        showDialog(context: context, builder: (BuildContext context) =>
+                                            ErrorDialog(errorMsg: "[find partner]\nError",)
+                                        );
+                                      else if (result[1] == "network")
+                                        showDialog(context: context, builder: (BuildContext context) =>
+                                            ErrorDialog(errorMsg: "[find partner]\nConnection Error",)
+                                        );
+                                      else
+                                        showDialog(context: context, builder: (BuildContext context) =>
+                                            ErrorDialog(
+                                                errorMsg: "[find partner]\nServer error : ${result[1]}")
+                                        );
+                                    }
+                                    _nicknameController.clear();
+                                  }
                                 },
                                 child: Container(
                                   alignment: Alignment.center,

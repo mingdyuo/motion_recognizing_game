@@ -22,6 +22,7 @@ Future<String> findPartner({String nickname, String device}) async {
       if(response.data['title']=="no"){
         return "no/Matching error";
       }
+
       String result = '${response.data['title']}/${response.data['channel_number']}';
       return result;
     }
@@ -56,7 +57,6 @@ Future<String> sendModeling({String deviceID, String channelNumber, String title
    // send modeling data to server
 
   String jsonModel = json.encode(model);
-  print("send model=================");
   FormData formData = FormData.fromMap({
     'deviceID': deviceID,
     "channel_number": channelNumber,
@@ -69,7 +69,6 @@ Future<String> sendModeling({String deviceID, String channelNumber, String title
         url_main+'score/',
         data: formData
     );
-    print("response get==============");
     print(response.data);
     if(response.statusCode == 200){
 

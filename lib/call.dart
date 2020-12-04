@@ -64,6 +64,7 @@ class _CallPageState extends State<CallPage> {
     configuration.dimensions = VideoDimensions(1920, 1080);
     await _engine.setVideoEncoderConfiguration(configuration);
     await _engine.joinChannel(null, widget.channelName, null, 0);
+    _engine.muteLocalAudioStream(muted);
   }
 
   /// Create agora sdk instance and initialize
@@ -131,23 +132,19 @@ class _CallPageState extends State<CallPage> {
   /// Video layout wrapper
   Widget _viewRows(bool myCam) {
     final views = _getRenderViews();
-    print("view length : ${views.length}");
     if(views.length == 1){
-      print("AAA");
       return Container(
           child: Column(
             children: <Widget>[_videoView(views[0])],
           ));
     }
     else if(myCam){
-      print("BBB");
       return Container(
           child: Column(
             children: <Widget>[_videoView(views[0])],
           ));
     }
     else{
-      print("CCC");
       return Container(
           child: Column(
             children: <Widget>[_videoView(views[1])],
@@ -169,7 +166,6 @@ class _CallPageState extends State<CallPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("----------------in call page");
     print("channel : ${widget.channelName}, myCam : ${widget.camera}");
     return Scaffold(
       backgroundColor: Colors.transparent,
