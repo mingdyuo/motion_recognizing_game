@@ -18,7 +18,7 @@
 
 #### 카운트 다운
 
-<img src="C:\Users\pc\AppData\Roaming\Typora\typora-user-images\image-20210201143840223.png" alt="image-20210201143840223" width="67%;" />
+<img src="https://user-images.githubusercontent.com/41130448/106419834-b50aed00-649c-11eb-91e8-d570c1b0191e.png" alt="image" width="zoom:67%;" />
 
 <br>
 
@@ -33,6 +33,7 @@
 <img src="https://user-images.githubusercontent.com/41130448/106419774-90167a00-649c-11eb-982d-6f79e97e2bf0.png" alt="image" width="zoom:67%;" />
 
 <br>
+
 #### 게임 스코어 기록
 
 <img src="https://user-images.githubusercontent.com/41130448/106419388-b982d600-649b-11eb-9576-4a5511805054.png" alt="image" width="67%;" />
