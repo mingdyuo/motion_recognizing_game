@@ -2,6 +2,22 @@
 
 <br>
 
+##  Tools
+
+**Client side**
+
+Dart(Flutter framework)
+
+WebRTC API (Agora io)
+
+**Server Side**
+
+Django
+
+AWS EC2
+
+ 
+
 ## Prototype
 
 ### 접속했을 때
