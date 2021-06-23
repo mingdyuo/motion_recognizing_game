@@ -14,19 +14,19 @@ class ScoreData{
 /* This list is an example about how to use ScoreData class
 List<ScoreData> data = [
   ScoreData(
-      firstMember: "Tom", secondMember: "Jerry",
+      members: "Tom & Jerry",
       score: 330
   ),
   ScoreData(
-      firstMember: "Michael", secondMember: "Jackson",
+      members: "Michael & Jackson",
       score: 295
   ),
   ScoreData(
-      firstMember: "Tory", secondMember: "Kelly",
+      members: "Tory & Kelly",
       score: 280
   ),
   ScoreData(
-      firstMember: "Ariana", secondMember: "Grande",
+      members: "Ariana & Grande",
       score: 255
   ),
 ];

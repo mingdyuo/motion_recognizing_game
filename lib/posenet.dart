@@ -44,6 +44,7 @@ Future<String> poseNet({String deviceID, String channelNumber, String imagePath,
       round: round
   );
 
+  /* Remove captured image after calculation */
   final dir = Directory(imagePath);
   dir.deleteSync(recursive: true);
 

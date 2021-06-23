@@ -43,9 +43,9 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
+  /* Variables Initialization */
   GameState currState = GameState.waiting;
   String keyword = "error";
-  //String gameTitle;
   int score = 0;
   int newPoint;
   int currSet = 1;
@@ -53,9 +53,9 @@ class _GamePageState extends State<GamePage> {
   String captureImagePath;
   Timer _timer;
 
-  int callFlag = 0;
-  bool isResultReceived = false;
   String resultReceived = "";
+  /* Flags */
+  bool isResultReceived = false;
   bool myCam = true;
   bool capture = true;
 
@@ -170,14 +170,6 @@ class _GamePageState extends State<GamePage> {
             });
   }
 
-  Future<bool> camChange()async{
-    bool result = myCam;
-    await Future.delayed(Duration(milliseconds: 1));
-    return result;
-  }
-
-
-
   void dispose(){
     if(_timer != null) _timer.cancel();
     super.dispose();
@@ -212,7 +204,6 @@ class _GamePageState extends State<GamePage> {
                               ScoreInfo(),
                           ],
                         );
-                        return snapshot.data;
                       }
                       else return Container();
                     },
@@ -266,7 +257,6 @@ class _GamePageState extends State<GamePage> {
               if(result[0] != "no"){
                 keyword = result[0];
                 countDown();
-                callFlag++;
                 currState = GameState.keyword;
               }
               else if(result.length == 2 && result[1] == "network"){
